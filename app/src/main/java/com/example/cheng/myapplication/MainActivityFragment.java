@@ -14,17 +14,22 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
+import android.widget.ImageView;
 import android.widget.SimpleAdapter;
+import android.widget.TextView;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.zip.Inflater;
 
 import javax.net.ssl.HttpsURLConnection;
 
@@ -87,7 +92,7 @@ public class MainActivityFragment extends Fragment {
 
     //update hot movie data
     private void updateHotMovie(){
-        final String TEST_URL="https://api.douban.com/v2/book/1220562";
+        final String TEST_URL="http://api.themoviedb.org/3/movie/popular?language=zh&api_key=5269bc7a3734ac2b6f73fc8425dcf655";
         FetchHotMoviesTask fetchHotMoviesTask  = new FetchHotMoviesTask();
         URL url=null;
         try {
@@ -103,7 +108,7 @@ public class MainActivityFragment extends Fragment {
 
         @Override
         protected List<HashMap<String, Object>> doInBackground(URL... urls) {
-            HttpsURLConnection connection = null;
+            HttpURLConnection connection = null;
             BufferedReader reader = null;
             String hotMovieStr=null;
             URL url;
@@ -114,7 +119,7 @@ public class MainActivityFragment extends Fragment {
             }
             try {
                 Log.i("cheng","I am here!");
-                connection = (HttpsURLConnection) url.openConnection();
+                connection = (HttpURLConnection) url.openConnection();
                 connection.setRequestMethod("GET");
                 InputStream inputStream = connection.getInputStream();
                 reader = new BufferedReader(new InputStreamReader(inputStream));
@@ -154,6 +159,45 @@ public class MainActivityFragment extends Fragment {
         @Override
         protected void onPostExecute(List<HashMap<String, Object>> hashMaps) {
             super.onPostExecute(hashMaps);
+        }
+    }
+
+    class MyGridViewAdapter extends SimpleAdapter{
+
+        Context context;
+        List<HashMap<String,Object>> list;
+        int resource;
+        String[] from;
+        int[] to;
+
+        public MyGridViewAdapter(Context context, List<? extends Map<String, ?>> data, int resource, String[] from, int[] to) {
+            super(context, data, resource, from, to);
+            this.context =context;
+            this.list = (List<HashMap<String, Object>>) data;
+            this.resource = resource;
+            this.from = from;
+            this.to = to;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            View rootView;
+            ImageView imageView;
+            TextView textView;
+
+            if (convertView!=null){
+                rootView = convertView;
+            }else {
+                LayoutInflater inflater = LayoutInflater.from(context);
+                rootView = inflater.inflate(resource,parent);
+            }
+
+            imageView = (ImageView) rootView.findViewById(R.id.movie_poster);
+            textView = (TextView) rootView.findViewById(R.id.movie_name);
+
+            imageView.setImageResource();
+
+            return super.getView(position, convertView, parent);
         }
     }
 }

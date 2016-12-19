@@ -18,6 +18,10 @@ import android.widget.ImageView;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
 
+import com.squareup.picasso.Picasso;
+
+import org.json.JSONException;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -39,6 +43,7 @@ import javax.net.ssl.HttpsURLConnection;
 public class MainActivityFragment extends Fragment {
 
     GridView mGridview;
+    MyGridViewAdapter mMovieAdapter;
 
     public MainActivityFragment() {
         setHasOptionsMenu(true);
@@ -51,8 +56,8 @@ public class MainActivityFragment extends Fragment {
         mGridview = (GridView) rootView.findViewById(R.id.gridview_movie);
         String[] from = {"name","poster"};
         int[] to = {R.id.movie_name,R.id.movie_poster};
-        SimpleAdapter simpleAdapter = new SimpleAdapter(getContext(),getData(),R.layout.grid_list_item,from,to);
-        mGridview.setAdapter(simpleAdapter);
+        mMovieAdapter = new MyGridViewAdapter(getContext(),getData(),R.layout.grid_list_item,from,to);
+        mGridview.setAdapter(mMovieAdapter);
         mGridview.setNumColumns(2);
         return rootView;
     }
@@ -80,7 +85,7 @@ public class MainActivityFragment extends Fragment {
         ArrayList<HashMap<String,Object>> list = new ArrayList<HashMap<String,Object>>();
         HashMap<String,Object> map = null;
         String[] movieNames = {"movie1","movie2","movie3","movie4"};
-        int[] posterIds = {R.drawable.hycs,R.drawable.jl,R.drawable.sqdwznl,R.drawable.tqd};
+        String[] posterIds = {"http://image.tmdb.org/t/p/w185/vD2XUVUm9enYhp232oL6R0TaCPL.jpg","http://image.tmdb.org/t/p/w185/vD2XUVUm9enYhp232oL6R0TaCPL.jpg","http://image.tmdb.org/t/p/w185/vD2XUVUm9enYhp232oL6R0TaCPL.jpg","http://image.tmdb.org/t/p/w185/vD2XUVUm9enYhp232oL6R0TaCPL.jpg"};
         for (int i= 0;i<movieNames.length;i++){
             map = new HashMap<String,Object>();
             map.put("name",movieNames[i]);
@@ -92,7 +97,7 @@ public class MainActivityFragment extends Fragment {
 
     //update hot movie data
     private void updateHotMovie(){
-        final String TEST_URL="http://api.themoviedb.org/3/movie/popular?language=zh&api_key=5269bc7a3734ac2b6f73fc8425dcf655";
+        final String TEST_URL="http://api.themoviedb.org/3/movie/top_rated?language=zh&api_key=5269bc7a3734ac2b6f73fc8425dcf655";
         FetchHotMoviesTask fetchHotMoviesTask  = new FetchHotMoviesTask();
         URL url=null;
         try {
@@ -103,11 +108,11 @@ public class MainActivityFragment extends Fragment {
         fetchHotMoviesTask.execute(url);
     }
 
-    private class FetchHotMoviesTask extends AsyncTask<URL,Void,List<HashMap<String,Object>>>{
+    private class FetchHotMoviesTask extends AsyncTask<URL,Void,List<HashMap<String,String>>>{
 
 
         @Override
-        protected List<HashMap<String, Object>> doInBackground(URL... urls) {
+        protected List<HashMap<String, String>> doInBackground(URL... urls) {
             HttpURLConnection connection = null;
             BufferedReader reader = null;
             String hotMovieStr=null;
@@ -124,7 +129,8 @@ public class MainActivityFragment extends Fragment {
                 InputStream inputStream = connection.getInputStream();
                 reader = new BufferedReader(new InputStreamReader(inputStream));
                 StringBuffer stringBuffer=new StringBuffer();
-                String stringLine=null;
+                String stringLine="";
+
                 while ((stringLine=reader.readLine())!=null){
                     stringBuffer.append(stringLine+"\n");
                 }
@@ -153,27 +159,34 @@ public class MainActivityFragment extends Fragment {
                 }
             }
 
-            return null;
+            try {
+                return JsonParser.GetHotMovies(hotMovieStr);
+            } catch (JSONException e) {
+                e.printStackTrace();
+                return null;
+            }
         }
 
         @Override
-        protected void onPostExecute(List<HashMap<String, Object>> hashMaps) {
+        protected void onPostExecute(List<HashMap<String, String>> hashMaps) {
             super.onPostExecute(hashMaps);
+            mMovieAdapter.changeData(hashMaps);
         }
     }
 
     class MyGridViewAdapter extends SimpleAdapter{
-
+        final String KEY_POSTER = "poster";
+        final String KEY_NAME = "name";
         Context context;
-        List<HashMap<String,Object>> list;
+        List<HashMap<String,String>> list;
         int resource;
         String[] from;
         int[] to;
 
         public MyGridViewAdapter(Context context, List<? extends Map<String, ?>> data, int resource, String[] from, int[] to) {
             super(context, data, resource, from, to);
-            this.context =context;
-            this.list = (List<HashMap<String, Object>>) data;
+            this.context = context;
+            this.list = (List<HashMap<String, String>>) data;
             this.resource = resource;
             this.from = from;
             this.to = to;
@@ -184,20 +197,26 @@ public class MainActivityFragment extends Fragment {
             View rootView;
             ImageView imageView;
             TextView textView;
+            HashMap<String,String> map=list.get(position);
 
             if (convertView!=null){
                 rootView = convertView;
             }else {
                 LayoutInflater inflater = LayoutInflater.from(context);
-                rootView = inflater.inflate(resource,parent);
+                rootView = inflater.inflate(resource,null);
             }
 
             imageView = (ImageView) rootView.findViewById(R.id.movie_poster);
             textView = (TextView) rootView.findViewById(R.id.movie_name);
+            textView.setText(map.get(KEY_NAME));
+            Picasso.with(context).load(map.get(KEY_POSTER)).into(imageView);
+            return rootView;
+//            return super.getView(position, convertView, parent);
+        }
 
-            imageView.setImageResource();
-
-            return super.getView(position, convertView, parent);
+        public void changeData(List<HashMap<String, String>> hashMaps){
+            list = hashMaps;
+            notifyDataSetChanged();
         }
     }
 }

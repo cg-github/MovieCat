@@ -1,7 +1,11 @@
 package com.example.cheng.myapplication;
 
 import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
+import android.preference.Preference;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.util.Log;
@@ -11,6 +15,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
@@ -44,6 +49,8 @@ public class MainActivityFragment extends Fragment {
 
     GridView mGridview;
     MyGridViewAdapter mMovieAdapter;
+    ArrayList<HashMap<String,String>> mList ;
+
 
     public MainActivityFragment() {
         setHasOptionsMenu(true);
@@ -54,12 +61,34 @@ public class MainActivityFragment extends Fragment {
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
         mGridview = (GridView) rootView.findViewById(R.id.gridview_movie);
-        String[] from = {"name","poster"};
-        int[] to = {R.id.movie_name,R.id.movie_poster};
-        mMovieAdapter = new MyGridViewAdapter(getContext(),getData(),R.layout.grid_list_item,from,to);
+        mList = new ArrayList<HashMap<String,String>>();
+        mMovieAdapter = new MyGridViewAdapter(getContext(),mList,R.layout.grid_list_item,null,null);
         mGridview.setAdapter(mMovieAdapter);
         mGridview.setNumColumns(2);
+        mGridview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                Intent intent = new Intent(getActivity(),DetailActivity.class);
+                HashMap<String,String> map = mList.get(i);
+                Bundle bundle = new Bundle();
+                bundle.putString(CommonUtil.KEY_MOVIE_TITLE,map.get(CommonUtil.KEY_MOVIE_TITLE));
+                bundle.putString(CommonUtil.KEY_MOVIE_POSTER_PATE,map.get(CommonUtil.KEY_MOVIE_POSTER_PATE));
+                bundle.putString(CommonUtil.KEY_MOVIE_OVERVIEW,map.get(CommonUtil.KEY_MOVIE_OVERVIEW));
+                bundle.putString(CommonUtil.KEY_MOVIE_VOTE_AVERAGE,map.get(CommonUtil.KEY_MOVIE_VOTE_AVERAGE));
+                bundle.putString(CommonUtil.KEY_MOVIE_RELEASE_DATE,map.get(CommonUtil.KEY_MOVIE_RELEASE_DATE));
+                intent.putExtra(CommonUtil.MOVIE_DETAIL_DATA,bundle);
+                startActivity(intent);
+            }
+        });
         return rootView;
+    }
+
+
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        updateHotMovie();
     }
 
     @Override
@@ -80,31 +109,13 @@ public class MainActivityFragment extends Fragment {
         return super.onOptionsItemSelected(item);
     }
 
-    //get the data of hot movies
-    private List<HashMap<String,Object>> getData(){
-        ArrayList<HashMap<String,Object>> list = new ArrayList<HashMap<String,Object>>();
-        HashMap<String,Object> map = null;
-        String[] movieNames = {"movie1","movie2","movie3","movie4"};
-        String[] posterIds = {"http://image.tmdb.org/t/p/w185/vD2XUVUm9enYhp232oL6R0TaCPL.jpg","http://image.tmdb.org/t/p/w185/vD2XUVUm9enYhp232oL6R0TaCPL.jpg","http://image.tmdb.org/t/p/w185/vD2XUVUm9enYhp232oL6R0TaCPL.jpg","http://image.tmdb.org/t/p/w185/vD2XUVUm9enYhp232oL6R0TaCPL.jpg"};
-        for (int i= 0;i<movieNames.length;i++){
-            map = new HashMap<String,Object>();
-            map.put("name",movieNames[i]);
-            map.put("poster",posterIds[i]);
-            list.add(map);
-        }
-        return list;
-    }
-
     //update hot movie data
     private void updateHotMovie(){
-        final String TEST_URL="http://api.themoviedb.org/3/movie/top_rated?language=zh&api_key=5269bc7a3734ac2b6f73fc8425dcf655";
+//        final String TEST_URL="http://api.themoviedb.org/3/movie/top_rated?language=zh&api_key=5269bc7a3734ac2b6f73fc8425dcf655";
         FetchHotMoviesTask fetchHotMoviesTask  = new FetchHotMoviesTask();
-        URL url=null;
-        try {
-             url = new URL(TEST_URL);
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        }
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        String sortType = prefs.getString(getString(R.string.pref_sort_type_key),getString(R.string.pref_sort_type_default));
+        URL url=UrlFactory.GetUrlBySortType(sortType);
         fetchHotMoviesTask.execute(url);
     }
 
@@ -130,15 +141,22 @@ public class MainActivityFragment extends Fragment {
                 reader = new BufferedReader(new InputStreamReader(inputStream));
                 StringBuffer stringBuffer=new StringBuffer();
                 String stringLine="";
+                int value = 0;
 
-                while ((stringLine=reader.readLine())!=null){
-                    stringBuffer.append(stringLine+"\n");
+                while ((value=reader.read())!=-1){
+                    char c = (char)value;
+                    stringBuffer.append(c);
                 }
-                if (stringBuffer.length()==0){
-                    Log.i("cheng",stringBuffer.toString());
-                    return null;
-                }
+
+//                while ((stringLine=reader.readLine())!=null){
+//                    stringBuffer.append(stringLine+"\n");
+//                }
+//                if (stringBuffer.length()==0){
+//                    Log.i("cheng",stringBuffer.toString());
+//                    return null;
+//                }
                 hotMovieStr = stringBuffer.toString();
+                Log.i("cheng",String.valueOf(hotMovieStr.length()));
                 Log.i("cheng",hotMovieStr);
             } catch (IOException e) {
                 Log.i("cheng","I am in Io exception!");
@@ -170,13 +188,13 @@ public class MainActivityFragment extends Fragment {
         @Override
         protected void onPostExecute(List<HashMap<String, String>> hashMaps) {
             super.onPostExecute(hashMaps);
+            mList.clear();
+            mList.addAll(hashMaps);
             mMovieAdapter.changeData(hashMaps);
         }
     }
 
     class MyGridViewAdapter extends SimpleAdapter{
-        final String KEY_POSTER = "poster";
-        final String KEY_NAME = "name";
         Context context;
         List<HashMap<String,String>> list;
         int resource;
@@ -192,11 +210,17 @@ public class MainActivityFragment extends Fragment {
             this.to = to;
         }
 
+
+        @Override
+        public int getCount() {
+            return list.size();
+        }
+
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
             View rootView;
             ImageView imageView;
-            TextView textView;
+//            TextView textView;
             HashMap<String,String> map=list.get(position);
 
             if (convertView!=null){
@@ -207,9 +231,9 @@ public class MainActivityFragment extends Fragment {
             }
 
             imageView = (ImageView) rootView.findViewById(R.id.movie_poster);
-            textView = (TextView) rootView.findViewById(R.id.movie_name);
-            textView.setText(map.get(KEY_NAME));
-            Picasso.with(context).load(map.get(KEY_POSTER)).into(imageView);
+//            textView = (TextView) rootView.findViewById(R.id.movie_name);
+//            textView.setText(map.get(KEY_NAME));
+            Picasso.with(context).load(map.get(CommonUtil.KEY_MOVIE_POSTER_PATE)).into(imageView);
             return rootView;
 //            return super.getView(position, convertView, parent);
         }

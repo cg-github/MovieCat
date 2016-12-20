@@ -3,6 +3,8 @@ package com.example.cheng.myapplication;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.preference.Preference;
 import android.preference.PreferenceManager;
@@ -22,7 +24,9 @@ import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONException;
@@ -111,12 +115,24 @@ public class MainActivityFragment extends Fragment {
 
     //update hot movie data
     private void updateHotMovie(){
+        if (!isOnLine()){
+            Toast.makeText(getContext(),"请检查您的网络状态！",Toast.LENGTH_LONG).show();
+            return;
+        }
 //        final String TEST_URL="http://api.themoviedb.org/3/movie/top_rated?language=zh&api_key=5269bc7a3734ac2b6f73fc8425dcf655";
         FetchHotMoviesTask fetchHotMoviesTask  = new FetchHotMoviesTask();
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
         String sortType = prefs.getString(getString(R.string.pref_sort_type_key),getString(R.string.pref_sort_type_default));
         URL url=UrlFactory.GetUrlBySortType(sortType);
+        Log.i("cheng",url.toString());
         fetchHotMoviesTask.execute(url);
+    }
+
+    //检查网络连接
+    public  boolean isOnLine(){
+        ConnectivityManager cm  = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = cm.getActiveNetworkInfo();
+        return netInfo!=null && netInfo.isConnected();
     }
 
     private class FetchHotMoviesTask extends AsyncTask<URL,Void,List<HashMap<String,String>>>{
@@ -134,7 +150,6 @@ public class MainActivityFragment extends Fragment {
                 return null;
             }
             try {
-                Log.i("cheng","I am here!");
                 connection = (HttpURLConnection) url.openConnection();
                 connection.setRequestMethod("GET");
                 InputStream inputStream = connection.getInputStream();
@@ -147,14 +162,6 @@ public class MainActivityFragment extends Fragment {
                     char c = (char)value;
                     stringBuffer.append(c);
                 }
-
-//                while ((stringLine=reader.readLine())!=null){
-//                    stringBuffer.append(stringLine+"\n");
-//                }
-//                if (stringBuffer.length()==0){
-//                    Log.i("cheng",stringBuffer.toString());
-//                    return null;
-//                }
                 hotMovieStr = stringBuffer.toString();
                 Log.i("cheng",String.valueOf(hotMovieStr.length()));
                 Log.i("cheng",hotMovieStr);
@@ -163,7 +170,7 @@ public class MainActivityFragment extends Fragment {
                 e.printStackTrace();
                 return null;
             }finally {
-                Log.i("cheng","I am in finaalll!");
+                Log.i("cheng","I am in final!");
                 if (connection!=null){
                     connection.disconnect();
                 }
@@ -233,7 +240,20 @@ public class MainActivityFragment extends Fragment {
             imageView = (ImageView) rootView.findViewById(R.id.movie_poster);
 //            textView = (TextView) rootView.findViewById(R.id.movie_name);
 //            textView.setText(map.get(KEY_NAME));
-            Picasso.with(context).load(map.get(CommonUtil.KEY_MOVIE_POSTER_PATE)).into(imageView);
+            Picasso.with(context)
+                    .load(map.get(CommonUtil.KEY_MOVIE_POSTER_PATE))
+                    .placeholder(android.R.drawable.picture_frame)
+                    .into(imageView, new Callback() {
+                        @Override
+                        public void onSuccess() {
+
+                        }
+
+                        @Override
+                        public void onError() {
+                            Toast.makeText(getContext(),"图片加载失败！",Toast.LENGTH_LONG).show();
+                        }
+                    });
             return rootView;
 //            return super.getView(position, convertView, parent);
         }

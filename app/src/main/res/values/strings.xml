@@ -86,5 +86,5 @@
     </string-array>
     <string name="pref_sort_type_title">排序方式</string>
     <string name="pref_sort_type_default">popular</string>
-    <string name="title_activity_detail">DetailActivity</string>
+    <string name="title_activity_detail">电影详情</string>
 </resources>

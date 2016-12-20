@@ -19,7 +19,7 @@ public class testJsonParser extends TestCase {
         HashMap<String,String> map = null;
         map= JsonParser.GetHotMovies(TEST_JSON_STRING).get(3);
 
-        assertEquals("降临",map.get(CommonUtil.KEY_NAME));
-        assertEquals(TEST_IMAGE_PATE,map.get(CommonUtil.KEY_POSTER));
+        assertEquals("降临",map.get(CommonUtil.KEY_MOVIE_TITLE));
+        assertEquals(TEST_IMAGE_PATE,map.get(CommonUtil.KEY_MOVIE_POSTER_PATE));
     }
 }

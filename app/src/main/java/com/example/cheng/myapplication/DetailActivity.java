@@ -24,7 +24,8 @@ public class DetailActivity extends AppCompatActivity {
     private static final String LOG_TAG=DetailActivity.class.getSimpleName();
 
     Intent mMovieIntent;
-    Bundle mMovieBundle;
+//    Bundle mMovieBundle;
+    ParcelableMovie mMovieData;
     TextView mTvTitle,mTvReleaseDate,mTvVote,mTvOverView;
     ImageView mImgPoster;
 
@@ -48,7 +49,7 @@ public class DetailActivity extends AppCompatActivity {
         });
 
         mMovieIntent = getIntent();
-        mMovieBundle = mMovieIntent.getBundleExtra(CommonUtil.MOVIE_DETAIL_DATA);
+        mMovieData = mMovieIntent.getParcelableExtra(CommonUtil.MOVIE_DETAIL_DATA);
 
         mTvTitle = (TextView) findViewById(R.id.tv_title);
         mTvReleaseDate = (TextView) findViewById(R.id.tv_release_date);
@@ -69,12 +70,12 @@ public class DetailActivity extends AppCompatActivity {
     }
 
     private void initView() {
-        mTvTitle.setText(mMovieBundle.getString(CommonUtil.KEY_MOVIE_TITLE));
-        mTvReleaseDate.setText(mMovieBundle.getString(CommonUtil.KEY_MOVIE_RELEASE_DATE));
-        mTvVote.setText(mMovieBundle.getString(CommonUtil.KEY_MOVIE_VOTE_AVERAGE)+"/10");
-        mTvOverView.setText("  "+mMovieBundle.getString(CommonUtil.KEY_MOVIE_OVERVIEW));
+        mTvTitle.setText(mMovieData.getTitle());
+        mTvReleaseDate.setText(mMovieData.getReleaseData());
+        mTvVote.setText(mMovieData.getVote()+"/10");
+        mTvOverView.setText("  "+mMovieData.getOverView());
         Picasso.with(getApplicationContext())
-                .load(mMovieBundle.getString(CommonUtil.KEY_MOVIE_POSTER_PATE))
+                .load(mMovieData.getPosterPath())
                 .placeholder(android.R.drawable.picture_frame)
                 .into(mImgPoster, new Callback() {
                     @Override
@@ -87,6 +88,7 @@ public class DetailActivity extends AppCompatActivity {
                         Toast.makeText(getApplicationContext(),"图片加载失败！",Toast.LENGTH_LONG).show();
                     }
                 });
+
     }
 
 }

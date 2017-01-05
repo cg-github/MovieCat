@@ -1,4 +1,4 @@
-package com.example.cheng.myapplication;
+package com.example.cheng.myapplication.util;
 
 import android.net.Uri;
 import android.util.Log;

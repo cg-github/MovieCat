@@ -8,6 +8,7 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 /**
  * Created by cheng on 2017/1/4.
@@ -43,8 +44,8 @@ public class MovieProvider extends ContentProvider {
                         s1
                         );
             case MOVIE_WITH_ID:
-
                 long movieId = MovieContract.MovieEntry.getMovieIdFromUri(uri);
+                Log.i("cheng","I am here movie with id"+movieId);
                 String selection = MovieContract.MovieEntry.TABLE_NAME+"."+
                         MovieContract.MovieEntry.COLUMN_MOVIE_ID+"=?";
                 return db.query(MovieContract.MovieEntry.TABLE_NAME,
@@ -135,6 +136,8 @@ public class MovieProvider extends ContentProvider {
                 break;
             case MOVIE_WITH_ID:
                 long movieId = MovieContract.MovieEntry.getMovieIdFromUri(uri);
+
+
                 String selection = MovieContract.MovieEntry.TABLE_NAME+"."+
                         MovieContract.MovieEntry.COLUMN_MOVIE_ID+"=?";
                 rowsUpdated=db.update(MovieContract.MovieEntry.TABLE_NAME,
@@ -153,7 +156,11 @@ public class MovieProvider extends ContentProvider {
         return rowsUpdated;
     }
 
-
+    @Override
+    public void shutdown() {
+        mDbHelper.close();
+        super.shutdown();
+    }
 
     static UriMatcher buildUriMatcher(){
         final UriMatcher uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);

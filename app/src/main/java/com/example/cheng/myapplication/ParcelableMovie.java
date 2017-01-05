@@ -3,6 +3,8 @@ package com.example.cheng.myapplication;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.example.cheng.myapplication.util.CommonUtil;
+
 import java.util.HashMap;
 
 /**

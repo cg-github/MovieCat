@@ -1,4 +1,4 @@
-package com.example.cheng.myapplication;
+package com.example.cheng.myapplication.util;
 
 import android.net.ConnectivityManager;
 
@@ -27,6 +27,9 @@ public class CommonUtil {
 
     //后台返回电影详情信息各键值
     public static final String KEY_MOVIE_POSTER_PATE = "poster_path";
+    public static final String KEY_ADULT = "adult";
+    public static final String KEY_POPULARITY = "popularity";
+    public static final String KEY_MOVIE_ID = "id";
     public static final String KEY_MOVIE_TITLE = "title";
     public static final String KEY_MOVIE_OVERVIEW = "overview";
     public static final String KEY_MOVIE_BACKDROP_PATH = "backdrop_path";

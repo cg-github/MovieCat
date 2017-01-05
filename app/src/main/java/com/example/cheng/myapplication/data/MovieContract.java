@@ -41,12 +41,34 @@ public class MovieContract {
 
         public static Uri buildUriWithMovieId(long movieId){
            return CONTENT_URI.buildUpon()
-                    .appendQueryParameter(COLUMN_MOVIE_ID,Long.toString(movieId)).build();
+                    .appendPath(Long.toString(movieId)).build();
         }
         public static long getMovieIdFromUri(Uri uri){
-            return Long.parseLong(uri.getPathSegments().get(2));
+            return Long.parseLong(uri.getPathSegments().get(1));
         }
     }
+    public static final String[] MOVIE_PROJECTION ={
+            MovieEntry._ID,
+            MovieEntry.COLUMN_POSTER_PATH,
+            MovieEntry.COLUMN_ADULT,
+            MovieEntry.COLUMN_OVERVIEW,
+            MovieEntry.COLUMN_RELEASE_DATE,
+            MovieEntry.COLUMN_MOVIE_ID,
+            MovieEntry.COLUMN_TITLE,
+            MovieEntry.COLUMN_POPULARITY,
+            MovieEntry.COLUMN_VOTE_AVERAGE
+    };
 
+    public static final int COL_ID = 0;
+    public static final int COL_POSTER_PATH = 1;
+    public static final int COL_ADULT =2;
+    public static final int COL_OVERVIEW = 3;
+    public static final int COL_RELEASE_DATE = 4;
+    public static final int COL_MOVIE_ID = 5;
+    public static final int COL_TITLE = 6;
+    public static final int COL_POPULARITY = 7;
+    public static final int COL_VOTE_AVERAGE = 8;
 
+    public static final String SORT_BY_VOTE = MovieEntry.COLUMN_VOTE_AVERAGE + " DESC";
+    public static final String SORT_BY_POPULARITY = MovieEntry.COLUMN_POPULARITY + " DESC";
 }

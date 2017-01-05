@@ -8,6 +8,7 @@ import android.widget.ImageView;
 import android.widget.SimpleAdapter;
 import android.widget.Toast;
 
+import com.example.cheng.myapplication.util.CommonUtil;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
@@ -87,8 +88,8 @@ public class MyGridViewAdapter extends SimpleAdapter {
         list = null;
         notifyDataSetChanged();
     }
+    class ViewHolder{
+        ImageView imageView;
+    }
 }
 
-class ViewHolder{
-    ImageView imageView;
-}

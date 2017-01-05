@@ -3,15 +3,17 @@ package com.example.cheng.myapplication;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
-import android.preference.Preference;
 import android.preference.PreferenceManager;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.AsyncTaskLoader;
+import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -21,41 +23,23 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.BaseAdapter;
 import android.widget.GridView;
-import android.widget.ImageView;
-import android.widget.SimpleAdapter;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import com.squareup.picasso.Callback;
-import com.squareup.picasso.Picasso;
-
-import org.json.JSONException;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
+import com.example.cheng.myapplication.data.MovieContract;
+import com.example.cheng.myapplication.util.CommonUtil;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.zip.Inflater;
-
-import javax.net.ssl.HttpsURLConnection;
 
 /**
  * A placeholder fragment containing a simple view.
  */
-public class MainActivityFragment extends Fragment  implements LoaderManager.LoaderCallbacks<List<HashMap<String,String>>>{
+public class MainActivityFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>{
+
+    static final int LOADER_MOVIE_LIST = 1;
 
     GridView mGridview;
-    MyGridViewAdapter mMovieAdapter;
+    MovieListAdapter mMovieAdapter;
     ArrayList<HashMap<String,String>> mList ;
 
 
@@ -69,7 +53,7 @@ public class MainActivityFragment extends Fragment  implements LoaderManager.Loa
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
         mGridview = (GridView) rootView.findViewById(R.id.gridview_movie);
         mList = new ArrayList<HashMap<String,String>>();
-        mMovieAdapter = new MyGridViewAdapter(getContext(),mList,R.layout.grid_list_item,null,null);
+        mMovieAdapter = new MovieListAdapter(getContext(),null,0);
         mGridview.setAdapter(mMovieAdapter);
         mGridview.setNumColumns(2);
         mGridview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -82,16 +66,19 @@ public class MainActivityFragment extends Fragment  implements LoaderManager.Loa
                 startActivity(intent);
             }
         });
-        updateHotMovie();
         return rootView;
     }
 
 
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        getLoaderManager().initLoader(LOADER_MOVIE_LIST,null,this);
+    }
 
     @Override
     public void onStart() {
         super.onStart();
-        updateHotMovie();
     }
 
     @Override
@@ -120,7 +107,9 @@ public class MainActivityFragment extends Fragment  implements LoaderManager.Loa
         }
 
         Log.i("cheng","I am in update");
-        getLoaderManager().initLoader(0,null,this);
+        new FetchMovieTask(getContext()).execute();
+        getLoaderManager().restartLoader(LOADER_MOVIE_LIST,null,this);
+ //       getLoaderManager().initLoader(0,null,this);
     }
 
     //检查网络连接
@@ -131,147 +120,32 @@ public class MainActivityFragment extends Fragment  implements LoaderManager.Loa
     }
 
     @Override
-    public Loader<List<HashMap<String, String>>> onCreateLoader(int id, final Bundle args) {
-        Log.i("cheng","I an in onCreateLoader!");
-        return new AsyncTaskLoader<List<HashMap<String, String>>>(getContext()) {
-
-            @Override
-            protected void onStartLoading() {
-                super.onStartLoading();
-                forceLoad();
-                Log.i("cheng","I an in onStartLoading!");
-            }
-
-            @Override
-            public List<HashMap<String, String>> loadInBackground() {
-                Log.i("cheng","I an in loadInBackground!");
-                HttpURLConnection connection = null;
-                BufferedReader reader = null;
-                String hotMovieStr=null;
-                SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
-                String sortType = prefs.getString(getString(R.string.pref_sort_type_key),getString(R.string.pref_sort_type_default));
-                URL url=UrlFactory.GetUrlBySortType(sortType);
-                try {
-                    connection = (HttpURLConnection) url.openConnection();
-                    connection.setRequestMethod("GET");
-                    InputStream inputStream = connection.getInputStream();
-                    reader = new BufferedReader(new InputStreamReader(inputStream));
-                    StringBuffer stringBuffer=new StringBuffer();
-                    String stringLine="";
-                    int value = 0;
-
-                    while ((value=reader.read())!=-1){
-                        char c = (char)value;
-                        stringBuffer.append(c);
-                    }
-                    hotMovieStr = stringBuffer.toString();
-                    Log.i("cheng",String.valueOf(hotMovieStr.length()));
-                    Log.i("cheng",hotMovieStr);
-                } catch (IOException e) {
-                    Log.i("cheng","I am in Io exception!");
-                    e.printStackTrace();
-                    return null;
-                }finally {
-                    Log.i("cheng","I am in final!");
-                    if (connection!=null){
-                        connection.disconnect();
-                    }
-                    try {
-                        if (reader!=null){
-                            reader.close();
-                        }
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                        return null;
-                    }
-                }
-
-                try {
-                    return JsonParser.GetHotMovies(hotMovieStr);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                    return null;
-                }
-            }
-        };
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        String sortOrder;
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
+        String sortType = prefs.getString(getContext().getString(R.string.pref_sort_type_key),getContext().getString(R.string.pref_sort_type_default));
+        if (sortType.equals("popularity")){
+            sortOrder = MovieContract.SORT_BY_POPULARITY;
+        }else {
+            sortOrder = MovieContract.SORT_BY_VOTE;
+        }
+        return new CursorLoader(getContext(),
+                MovieContract.MovieEntry.CONTENT_URI,
+                MovieContract.MOVIE_PROJECTION,
+                null,
+                null,
+                sortOrder
+                );
     }
 
     @Override
-    public void onLoadFinished(Loader<List<HashMap<String, String>>> loader, List<HashMap<String, String>> data) {
-        mList.clear();
-        mList.addAll(data);
-        mMovieAdapter.changeData(data);
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        mMovieAdapter.swapCursor(data);
+
     }
 
     @Override
-    public void onLoaderReset(Loader<List<HashMap<String, String>>> loader) {
-//        mMovieAdapter.clearData();
-    }
-
-
-    private class FetchHotMoviesTask extends AsyncTask<URL,Void,List<HashMap<String,String>>>{
-
-
-        @Override
-        protected List<HashMap<String, String>> doInBackground(URL... urls) {
-            HttpURLConnection connection = null;
-            BufferedReader reader = null;
-            String hotMovieStr=null;
-            URL url;
-            if (urls.length!=0){
-                url = urls[0];
-            }else{
-                return null;
-            }
-            try {
-                connection = (HttpURLConnection) url.openConnection();
-                connection.setRequestMethod("GET");
-                InputStream inputStream = connection.getInputStream();
-                reader = new BufferedReader(new InputStreamReader(inputStream));
-                StringBuffer stringBuffer=new StringBuffer();
-                String stringLine="";
-                int value = 0;
-
-                while ((value=reader.read())!=-1){
-                    char c = (char)value;
-                    stringBuffer.append(c);
-                }
-                hotMovieStr = stringBuffer.toString();
-                Log.i("cheng",String.valueOf(hotMovieStr.length()));
-                Log.i("cheng",hotMovieStr);
-            } catch (IOException e) {
-                Log.i("cheng","I am in Io exception!");
-                e.printStackTrace();
-                return null;
-            }finally {
-                Log.i("cheng","I am in final!");
-                if (connection!=null){
-                    connection.disconnect();
-                }
-                try {
-                    if (reader!=null){
-                        reader.close();
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    return null;
-                }
-            }
-
-            try {
-                return JsonParser.GetHotMovies(hotMovieStr);
-            } catch (JSONException e) {
-                e.printStackTrace();
-                return null;
-            }
-        }
-
-        @Override
-        protected void onPostExecute(List<HashMap<String, String>> hashMaps) {
-            super.onPostExecute(hashMaps);
-            mList.clear();
-            mList.addAll(hashMaps);
-            mMovieAdapter.changeData(hashMaps);
-        }
+    public void onLoaderReset(Loader<Cursor> loader) {
+        mMovieAdapter.swapCursor(null);
     }
 }

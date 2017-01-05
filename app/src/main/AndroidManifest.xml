@@ -30,6 +30,9 @@
             android:label="@string/title_activity_detail"
             android:theme="@style/AppTheme.NoActionBar"
             android:parentActivityName=".MainActivity"></activity>
+        <provider
+            android:authorities="com.example.cheng.myapplication"
+            android:name=".data.MovieProvider"></provider>
     </application>
 
 </manifest>

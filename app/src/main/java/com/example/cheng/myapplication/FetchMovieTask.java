@@ -118,7 +118,9 @@ public class FetchMovieTask extends AsyncTask<Void,Void,Void> {
         }
 
         try {
-            StoreHotMovies(hotMovieStr);
+            if (hotMovieStr!=null && hotMovieStr.length()>0){
+                StoreHotMovies(hotMovieStr);
+            }
         } catch (JSONException e) {
             e.printStackTrace();
             return null;

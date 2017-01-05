@@ -27,6 +27,9 @@ public class MovieListAdapter extends CursorAdapter {
     @Override
     public View newView(Context context, Cursor cursor, ViewGroup viewGroup) {
         View rootView = LayoutInflater.from(context).inflate(R.layout.grid_list_item,viewGroup,false);
+        ViewHolder viewHolder = new ViewHolder();
+        viewHolder.imageView = (ImageView) rootView.findViewById(R.id.movie_poster);
+        rootView.setTag(viewHolder);
         return rootView;
     }
 
@@ -34,7 +37,12 @@ public class MovieListAdapter extends CursorAdapter {
     public void bindView(View view, final Context context, Cursor cursor) {
          ImageView imageView;
          String posterPath;
-        imageView = (ImageView) view.findViewById(R.id.movie_poster);
+         ViewHolder viewHolder;
+         viewHolder = (ViewHolder) view.getTag();
+
+
+        view.setTag(R.string.key_movie_id,cursor.getLong(MovieContract.COL_MOVIE_ID));
+        imageView = viewHolder.imageView;
         posterPath = CommonUtil.IMAGE_BASE_URI+CommonUtil.IMAGE_SCALE_W500+cursor.getString(MovieContract.COL_POSTER_PATH);
         Picasso.with(context)
                 .load(posterPath)

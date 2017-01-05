@@ -36,11 +36,13 @@ import java.util.HashMap;
  */
 public class MainActivityFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>{
 
+    static final String LOG_TAG = MainActivityFragment.class.getSimpleName();
     static final int LOADER_MOVIE_LIST = 1;
 
     GridView mGridview;
     MovieListAdapter mMovieAdapter;
     ArrayList<HashMap<String,String>> mList ;
+    String mSortType;
 
 
     public MainActivityFragment() {
@@ -60,12 +62,14 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 Intent intent = new Intent(getActivity(),DetailActivity.class);
-                HashMap<String,String> map = mList.get(i);
-                ParcelableMovie pMovie = new ParcelableMovie(map);
-                intent.putExtra(CommonUtil.MOVIE_DETAIL_DATA,pMovie);
+                long movieId = Long.parseLong(view.getTag(R.string.key_movie_id).toString());
+                intent.putExtra(CommonUtil.KEY_MOVIE_ID,movieId);
                 startActivity(intent);
             }
         });
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
+        mSortType = prefs.getString(getContext().getString(R.string.pref_sort_type_key),getContext().getString(R.string.pref_sort_type_default));
+        getLoaderManager().initLoader(LOADER_MOVIE_LIST,null,this);
         return rootView;
     }
 
@@ -73,12 +77,22 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getLoaderManager().initLoader(LOADER_MOVIE_LIST,null,this);
     }
 
     @Override
     public void onStart() {
         super.onStart();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
+        String sortType = prefs.getString(getContext().getString(R.string.pref_sort_type_key),getContext().getString(R.string.pref_sort_type_default));
+        if (!sortType.equals(mSortType)){
+            mSortType = sortType;
+            getLoaderManager().restartLoader(LOADER_MOVIE_LIST,null,this);
+        }
     }
 
     @Override
@@ -106,7 +120,6 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
             return;
         }
 
-        Log.i("cheng","I am in update");
         new FetchMovieTask(getContext()).execute();
         getLoaderManager().restartLoader(LOADER_MOVIE_LIST,null,this);
  //       getLoaderManager().initLoader(0,null,this);
@@ -122,13 +135,13 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         String sortOrder;
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
-        String sortType = prefs.getString(getContext().getString(R.string.pref_sort_type_key),getContext().getString(R.string.pref_sort_type_default));
-        if (sortType.equals("popularity")){
+
+        if (mSortType.equals("popularity")){
             sortOrder = MovieContract.SORT_BY_POPULARITY;
         }else {
             sortOrder = MovieContract.SORT_BY_VOTE;
         }
+
         return new CursorLoader(getContext(),
                 MovieContract.MovieEntry.CONTENT_URI,
                 MovieContract.MOVIE_PROJECTION,

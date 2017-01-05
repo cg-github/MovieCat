@@ -1,9 +1,14 @@
 package com.example.cheng.myapplication;
 
 import android.content.Intent;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
@@ -12,11 +17,12 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.cheng.myapplication.data.MovieContract;
 import com.example.cheng.myapplication.util.CommonUtil;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
-public class DetailActivity extends AppCompatActivity {
+public class DetailActivity extends AppCompatActivity  implements LoaderManager.LoaderCallbacks<Cursor>{
 
     private static final String LOG_TAG=DetailActivity.class.getSimpleName();
 
@@ -25,6 +31,10 @@ public class DetailActivity extends AppCompatActivity {
     ParcelableMovie mMovieData;
     TextView mTvTitle,mTvReleaseDate,mTvVote,mTvOverView;
     ImageView mImgPoster;
+
+    long mMovieId;
+
+    private static final int LOADER_MOVIE_DETAIL = 2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,15 +56,16 @@ public class DetailActivity extends AppCompatActivity {
         });
 
         mMovieIntent = getIntent();
-        mMovieData = mMovieIntent.getParcelableExtra(CommonUtil.MOVIE_DETAIL_DATA);
-
         mTvTitle = (TextView) findViewById(R.id.tv_title);
         mTvReleaseDate = (TextView) findViewById(R.id.tv_release_date);
         mTvVote = (TextView) findViewById(R.id.tv_vote);
         mTvOverView = (TextView) findViewById(R.id.tv_overview);
         mImgPoster = (ImageView) findViewById(R.id.img_poster);
 
-        initView();
+        mMovieId = mMovieIntent.getLongExtra(CommonUtil.KEY_MOVIE_ID,550);
+
+        getSupportLoaderManager().initLoader(LOADER_MOVIE_DETAIL,null,this);
+
 
     }
 
@@ -63,13 +74,16 @@ public class DetailActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private void initView() {
-        mTvTitle.setText(mMovieData.getTitle());
-        mTvReleaseDate.setText(mMovieData.getReleaseData());
-        mTvVote.setText(mMovieData.getVote()+"/10");
-        mTvOverView.setText("  "+mMovieData.getOverView());
+    private void initView(Cursor cursor) {
+        mTvTitle.setText(cursor.getString(MovieContract.COL_TITLE));
+        mTvReleaseDate.setText(cursor.getString(MovieContract.COL_RELEASE_DATE));
+        mTvVote.setText(cursor.getDouble(MovieContract.COL_VOTE_AVERAGE)+"/10");
+        mTvOverView.setText("  "+cursor.getString(MovieContract.COL_OVERVIEW));
+
+        String posterPath = CommonUtil.IMAGE_BASE_URI+CommonUtil.IMAGE_SCALE_W500+cursor.getString(MovieContract.COL_POSTER_PATH);
+
         Picasso.with(getApplicationContext())
-                .load(mMovieData.getPosterPath())
+                .load(posterPath)
                 .placeholder(android.R.drawable.picture_frame)
                 .into(mImgPoster, new Callback() {
                     @Override
@@ -85,4 +99,29 @@ public class DetailActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        Uri uri = MovieContract.MovieEntry.buildUriWithMovieId(mMovieId);
+
+        return new CursorLoader(this,
+                uri,
+                MovieContract.MOVIE_PROJECTION,
+                null,
+                null,
+                null
+                );
+
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        if (data.moveToFirst()){
+            initView(data);
+        }
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+
+    }
 }

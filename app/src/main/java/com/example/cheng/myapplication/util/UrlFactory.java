@@ -20,6 +20,11 @@ public class UrlFactory {
     private final static String TMDB_API_KEY = "5269bc7a3734ac2b6f73fc8425dcf655";
 
     public static URL GetUrlBySortType(String sortType){
+        if(sortType.equals(CommonUtil.KEY_POPULARITY)){
+            sortType = "popular";
+        }else {
+            sortType = "top_rated";
+        }
         URL url = null;
         Uri.Builder builder = new Uri.Builder();
         builder.scheme(TMDB_SCHEME)

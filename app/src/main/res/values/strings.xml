@@ -2,6 +2,7 @@
     <string name="app_name">热门电影</string>
     <string name="action_settings">设置</string>
     <string name="action_refresh">刷新</string>
+    <string name="action_my_collection">我的收藏</string>
     <string name="title_activity_settings">设置</string>
 
     <!-- Strings related to Settings -->
@@ -85,7 +86,7 @@
         <item>vote_average</item>
     </string-array>
     <string name="pref_sort_type_title">排序方式</string>
-    <string name="pref_sort_type_default">popular</string>
+    <string name="pref_sort_type_default">popularity</string>
     <string name="title_activity_detail">电影详情</string>
     <string name="key_movie_id">255555</string>
 </resources>

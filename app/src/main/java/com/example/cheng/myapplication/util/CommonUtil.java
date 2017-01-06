@@ -36,6 +36,8 @@ public class CommonUtil {
     public static final String KEY_MOVIE_RELEASE_DATE = "release_date";
     public static final String KEY_MOVIE_VOTE_AVERAGE = "vote_average";
 
+
+
     //gridview 上绑定数据键值
     public static final int KEY_VIEW_HOLDER = 0;
     public static final int KEY_VIEW_MOVIE_ID = 1;

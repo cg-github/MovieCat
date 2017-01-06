@@ -1,8 +1,10 @@
 package com.example.cheng.myapplication;
 
+import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -31,10 +33,12 @@ public class DetailActivity extends AppCompatActivity  implements LoaderManager.
     ParcelableMovie mMovieData;
     TextView mTvTitle,mTvReleaseDate,mTvVote,mTvOverView;
     ImageView mImgPoster;
+    Cursor mCursor;
 
     long mMovieId;
 
     private static final int LOADER_MOVIE_DETAIL = 2;
+    private static final int LOADER_UPDATE_STATUS = 3;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,8 +54,26 @@ public class DetailActivity extends AppCompatActivity  implements LoaderManager.
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+
+                int status = mCursor.getInt(MovieContract.COL_STATUS);
+                if (status==1){
+                    Snackbar.make(view, "该电影已收藏！", Snackbar.LENGTH_LONG)
+                            .setAction("Action", null).show();
+                }else{
+                    Uri uri = MovieContract.MovieEntry.buildUriWithMovieId(mMovieId);
+                    new UpdateStatusTask(DetailActivity.this, new OnTaskListener() {
+                        @Override
+                        public void onSuccess() {
+                            Toast.makeText(DetailActivity.this,"收藏成功！",Toast.LENGTH_SHORT).show();
+                        }
+
+                        @Override
+                        public void onFailed() {
+                            Toast.makeText(DetailActivity.this,"收藏失败！",Toast.LENGTH_SHORT).show();
+                        }
+                    }).execute(uri);
+                }
+
             }
         });
 
@@ -102,7 +124,6 @@ public class DetailActivity extends AppCompatActivity  implements LoaderManager.
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         Uri uri = MovieContract.MovieEntry.buildUriWithMovieId(mMovieId);
-
         return new CursorLoader(this,
                 uri,
                 MovieContract.MOVIE_PROJECTION,
@@ -116,6 +137,7 @@ public class DetailActivity extends AppCompatActivity  implements LoaderManager.
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         if (data.moveToFirst()){
+            mCursor = data;
             initView(data);
         }
     }

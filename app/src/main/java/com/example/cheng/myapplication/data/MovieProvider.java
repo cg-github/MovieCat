@@ -10,11 +10,15 @@ import android.net.Uri;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import com.example.cheng.myapplication.util.CommonUtil;
+
 /**
  * Created by cheng on 2017/1/4.
  */
 
 public class MovieProvider extends ContentProvider {
+
+    private static final String LOG_TAG = MovieProvider.class.getSimpleName();
     static final int MOVIE = 100;
     static final int MOVIE_WITH_ID = 101;
 
@@ -79,20 +83,39 @@ public class MovieProvider extends ContentProvider {
     public Uri insert(Uri uri, ContentValues contentValues) {
         SQLiteDatabase db = mDbHelper.getWritableDatabase();
         Uri retUri = null;
+        long movieId = contentValues.getAsLong(MovieContract.MovieEntry.COLUMN_MOVIE_ID);
         switch (mUriMatcher.match(uri)){
             case MOVIE:
-                long _id = db.insert(MovieContract.MovieEntry.TABLE_NAME,null,contentValues);
-                if (_id>0)
-                {
+                Uri queryUri = MovieContract.MovieEntry.buildUriWithMovieId(movieId);
+                Cursor cursor =query(queryUri,
+                            MovieContract.MOVIE_PROJECTION,
+                            null,
+                            null,
+                            null
+                        );
+                if (cursor!=null && cursor.moveToFirst() && (movieId == cursor.getLong(MovieContract.COL_MOVIE_ID))){
+                    Uri updateUri = MovieContract.MovieEntry.buildUriWithMovieId(movieId);
+                    long _id = cursor.getLong(MovieContract.COL_ID);
+                    update(updateUri,contentValues,null,null);
                     retUri = MovieContract.MovieEntry.buildMovieUri(_id);
+                    cursor.close();
                 }else {
-                    throw new SQLException("Failed to insert into row "+uri);
+                    long _id = db.insert(MovieContract.MovieEntry.TABLE_NAME,null,contentValues);
+                    if (_id>0)
+                    {
+                        retUri = MovieContract.MovieEntry.buildMovieUri(_id);
+                    }else {
+                        throw new SQLException("Failed to insert into row "+uri);
+                    }
+                    Log.i(LOG_TAG,"insert excute");
                 }
+
                 break;
             default:
                 throw new SQLException("Unknow Uri: "+uri);
         }
         getContext().getContentResolver().notifyChange(uri,null);
+        Log.i(LOG_TAG,retUri.toString());
         return retUri;
     }
 
@@ -137,7 +160,8 @@ public class MovieProvider extends ContentProvider {
             case MOVIE_WITH_ID:
                 long movieId = MovieContract.MovieEntry.getMovieIdFromUri(uri);
 
-
+                Log.i(LOG_TAG,"update excute!");
+                Log.i(LOG_TAG,"movieId: "+movieId);
                 String selection = MovieContract.MovieEntry.TABLE_NAME+"."+
                         MovieContract.MovieEntry.COLUMN_MOVIE_ID+"=?";
                 rowsUpdated=db.update(MovieContract.MovieEntry.TABLE_NAME,

@@ -38,6 +38,7 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
 
     static final String LOG_TAG = MainActivityFragment.class.getSimpleName();
     static final int LOADER_MOVIE_LIST = 1;
+    static final int LOADER_MOVIE_COLLECTED =2;
 
     GridView mGridview;
     MovieListAdapter mMovieAdapter;
@@ -107,6 +108,9 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
             case R.id.action_refresh:
                 updateHotMovie();
                 break;
+            case R.id.action_my_collection:
+                getLoaderManager().initLoader(LOADER_MOVIE_COLLECTED,null,this);
+                break;
             default:
                 break;
         }
@@ -120,8 +124,18 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
             return;
         }
 
-        new FetchMovieTask(getContext()).execute();
-        getLoaderManager().restartLoader(LOADER_MOVIE_LIST,null,this);
+
+        new FetchMovieTask(getContext(), new OnTaskListener() {
+            @Override
+            public void onSuccess() {
+                getLoaderManager().restartLoader(LOADER_MOVIE_LIST,null,MainActivityFragment.this);
+            }
+
+            @Override
+            public void onFailed() {
+
+            }
+        }).execute();
  //       getLoaderManager().initLoader(0,null,this);
     }
 
@@ -142,13 +156,30 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
             sortOrder = MovieContract.SORT_BY_VOTE;
         }
 
-        return new CursorLoader(getContext(),
-                MovieContract.MovieEntry.CONTENT_URI,
-                MovieContract.MOVIE_PROJECTION,
-                null,
-                null,
-                sortOrder
+        switch (id){
+            case LOADER_MOVIE_LIST:
+                return new CursorLoader(getContext(),
+                        MovieContract.MovieEntry.CONTENT_URI,
+                        MovieContract.MOVIE_PROJECTION,
+                        null,
+                        null,
+                        sortOrder
                 );
+            case LOADER_MOVIE_COLLECTED:
+                String selection = MovieContract.MovieEntry.COLUMN_STATUS +"=?";
+                String[] selectionArgs = {MovieContract.STATUS_COLLECTED+""};
+                return new CursorLoader(getContext(),
+                        MovieContract.MovieEntry.CONTENT_URI,
+                        MovieContract.MOVIE_PROJECTION,
+                        selection,
+                        selectionArgs,
+                        sortOrder
+                );
+
+            default:
+                return null;
+        }
+
     }
 
     @Override

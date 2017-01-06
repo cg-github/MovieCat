@@ -35,9 +35,11 @@ public class FetchMovieTask extends AsyncTask<Void,Void,Void> {
     static final String LOG_TAG=FetchMovieTask.class.getSimpleName();
 
     Context mContext;
+    OnTaskListener mListener;
 
-    public FetchMovieTask(Context context) {
+    public FetchMovieTask(Context context , OnTaskListener listener) {
         this.mContext = context;
+        this.mListener = listener;
     }
 
     //store hot movies
@@ -67,7 +69,7 @@ public class FetchMovieTask extends AsyncTask<Void,Void,Void> {
         }
         ContentValues[] cValues = new ContentValues[cVVector.size()];
         cVVector.toArray(cValues);
-        mContext.getContentResolver().delete(MovieContract.MovieEntry.CONTENT_URI,null,null);
+//        mContext.getContentResolver().delete(MovieContract.MovieEntry.CONTENT_URI,null,null);
         rowInserted = mContext.getContentResolver().bulkInsert(
                 MovieContract.MovieEntry.CONTENT_URI,
                 cValues
@@ -126,5 +128,11 @@ public class FetchMovieTask extends AsyncTask<Void,Void,Void> {
             return null;
         }
         return null;
+    }
+
+    @Override
+    protected void onPostExecute(Void aVoid) {
+        super.onPostExecute(aVoid);
+        mListener.onSuccess();
     }
 }

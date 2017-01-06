@@ -34,6 +34,7 @@ public class MovieContract {
         public static final String COLUMN_TITLE = "title";
         public static final String COLUMN_POPULARITY = "popularity";
         public static final String COLUMN_VOTE_AVERAGE = "vote_average";
+        public static final String COLUMN_STATUS = "status";
 
         public static Uri buildMovieUri(long id){
             return ContentUris.withAppendedId(CONTENT_URI,id);
@@ -56,7 +57,8 @@ public class MovieContract {
             MovieEntry.COLUMN_MOVIE_ID,
             MovieEntry.COLUMN_TITLE,
             MovieEntry.COLUMN_POPULARITY,
-            MovieEntry.COLUMN_VOTE_AVERAGE
+            MovieEntry.COLUMN_VOTE_AVERAGE,
+            MovieEntry.COLUMN_STATUS
     };
 
     public static final int COL_ID = 0;
@@ -68,7 +70,12 @@ public class MovieContract {
     public static final int COL_TITLE = 6;
     public static final int COL_POPULARITY = 7;
     public static final int COL_VOTE_AVERAGE = 8;
+    public static final int COL_STATUS = 9;
 
     public static final String SORT_BY_VOTE = MovieEntry.COLUMN_VOTE_AVERAGE + " DESC";
     public static final String SORT_BY_POPULARITY = MovieEntry.COLUMN_POPULARITY + " DESC";
+
+    //电影收藏状态
+    public static final int STATUS_COLLECTED = 1;
+    public static final int STATUS_NOT_COLLECTED = 0;
 }

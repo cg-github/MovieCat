@@ -93,6 +93,7 @@ public class DetailActivity extends AppCompatActivity  implements LoaderManager.
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+
         return super.onOptionsItemSelected(item);
     }
 

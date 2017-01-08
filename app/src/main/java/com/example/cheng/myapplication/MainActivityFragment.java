@@ -53,6 +53,7 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        Log.i(LOG_TAG,"onCreateView");
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
         mGridview = (GridView) rootView.findViewById(R.id.gridview_movie);
         mList = new ArrayList<HashMap<String,String>>();
@@ -78,15 +79,18 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.i(LOG_TAG,"onCreate");
     }
 
     @Override
     public void onStart() {
+        Log.i(LOG_TAG,"onStart");
         super.onStart();
     }
 
     @Override
     public void onResume() {
+        Log.i(LOG_TAG,"onResume");
         super.onResume();
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
         String sortType = prefs.getString(getContext().getString(R.string.pref_sort_type_key),getContext().getString(R.string.pref_sort_type_default));
@@ -95,6 +99,14 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
             getLoaderManager().restartLoader(LOADER_MOVIE_LIST,null,this);
         }
     }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        Log.i(LOG_TAG,"onSaveInstanceState");
+        super.onSaveInstanceState(outState);
+    }
+
+
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {

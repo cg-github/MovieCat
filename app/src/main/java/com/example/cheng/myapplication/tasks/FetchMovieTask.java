@@ -1,4 +1,4 @@
-package com.example.cheng.myapplication;
+package com.example.cheng.myapplication.tasks;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -7,9 +7,9 @@ import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
+import com.example.cheng.myapplication.R;
 import com.example.cheng.myapplication.data.MovieContract;
 import com.example.cheng.myapplication.util.CommonUtil;
-import com.example.cheng.myapplication.util.JsonParser;
 import com.example.cheng.myapplication.util.UrlFactory;
 
 import org.json.JSONArray;

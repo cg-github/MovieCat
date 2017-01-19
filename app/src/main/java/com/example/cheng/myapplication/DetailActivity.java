@@ -1,11 +1,10 @@
 package com.example.cheng.myapplication;
 
-import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.LoaderManager;
@@ -15,25 +14,40 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.cheng.myapplication.adapters.MovieReviewsAdapter;
 import com.example.cheng.myapplication.data.MovieContract;
+import com.example.cheng.myapplication.tasks.FetchReviewsTask;
+import com.example.cheng.myapplication.tasks.OnTaskListener;
+import com.example.cheng.myapplication.tasks.UpdateStatusTask;
 import com.example.cheng.myapplication.util.CommonUtil;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
-public class DetailActivity extends AppCompatActivity  implements LoaderManager.LoaderCallbacks<Cursor>{
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.ListIterator;
+
+public class DetailActivity extends AppCompatActivity  implements LoaderManager.LoaderCallbacks<Cursor>, View.OnClickListener {
 
     private static final String LOG_TAG=DetailActivity.class.getSimpleName();
 
     Intent mMovieIntent;
-//    Bundle mMovieBundle;
-    ParcelableMovie mMovieData;
-    TextView mTvTitle,mTvReleaseDate,mTvVote,mTvOverView;
+    TextView mTvTitle,mTvReleaseDate,mTvVote,mTvOverView,mReviewNote;
     ImageView mImgPoster;
+    Button mBtnReview;
+    ListView mListReview;
     Cursor mCursor;
+
+    MovieReviewsAdapter mReviewsAdapter;
+    List<HashMap<String,String>> mList;
 
     long mMovieId;
 
@@ -83,13 +97,22 @@ public class DetailActivity extends AppCompatActivity  implements LoaderManager.
         mTvVote = (TextView) findViewById(R.id.tv_vote);
         mTvOverView = (TextView) findViewById(R.id.tv_overview);
         mImgPoster = (ImageView) findViewById(R.id.img_poster);
+        mReviewNote = (TextView) findViewById(R.id.tv_reviews_note);
+        mBtnReview = (Button) findViewById(R.id.btn_refresh_reviews);
+        mListReview = (ListView) findViewById(R.id.list_reviews);
 
         mMovieId = mMovieIntent.getLongExtra(CommonUtil.KEY_MOVIE_ID,550);
+        mReviewsAdapter = new MovieReviewsAdapter(this,null,R.layout.review_list_item,null,null);
+        mListReview.setAdapter(mReviewsAdapter);
+
+        mBtnReview.setOnClickListener(this);
 
         getSupportLoaderManager().initLoader(LOADER_MOVIE_DETAIL,null,this);
 
 
     }
+
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -146,5 +169,16 @@ public class DetailActivity extends AppCompatActivity  implements LoaderManager.
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
 
+    }
+
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()){
+            case R.id.btn_refresh_reviews:
+                new FetchReviewsTask(this,mReviewsAdapter,mMovieId).execute();
+                break;
+            default:
+                break;
+        }
     }
 }

@@ -1,4 +1,4 @@
-package com.example.cheng.myapplication;
+package com.example.cheng.myapplication.adapters;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -8,6 +8,7 @@ import android.widget.ImageView;
 import android.widget.SimpleAdapter;
 import android.widget.Toast;
 
+import com.example.cheng.myapplication.R;
 import com.example.cheng.myapplication.util.CommonUtil;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;

@@ -88,7 +88,7 @@
                 android:layout_below="@+id/tv_overview" />
 
         <TextView
-            android:text="获取评论失败！！"
+            tools:text="获取评论失败！！"
             android:textSize="@dimen/text_over_view_size"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

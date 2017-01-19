@@ -42,4 +42,11 @@ public class CommonUtil {
     public static final int KEY_VIEW_HOLDER = 0;
     public static final int KEY_VIEW_MOVIE_ID = 1;
 
+    //评论数据中各键
+    public static final String KEY_REVIEW_RESULTS = "results";
+    public static final String KEY_REVIEW_ID = "id";
+    public static final String KEY_REVIEW_AUTHOR = "author";
+    public static final String KEY_REVIEW_CONTENT = "content";
+    public static final String KEY_REVIEW_URL = "url";
+
 }

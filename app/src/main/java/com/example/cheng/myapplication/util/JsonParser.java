@@ -43,6 +43,26 @@ public class JsonParser {
         return list;
     }
 
+    //parse the reviews data
+    public static List<HashMap<String,String>> GetMovieReviews(String jsonStr) throws JSONException {
+        ArrayList<HashMap<String,String>> list = new ArrayList<HashMap<String, String>>();
+        HashMap<String,String> map = null;
+        JSONObject json = new JSONObject(jsonStr);
+        JSONArray jsonArray = json.getJSONArray("results");
+        JSONObject jsonMovie=null;
+        for (int i=0;i<jsonArray.length();i++){
+            jsonMovie = jsonArray.getJSONObject(i);
+            map = new HashMap<String, String>();
+            map.put(CommonUtil.KEY_REVIEW_ID,jsonMovie.get(CommonUtil.KEY_REVIEW_ID).toString());
+            map.put(CommonUtil.KEY_REVIEW_AUTHOR,jsonMovie.get(CommonUtil.KEY_REVIEW_AUTHOR).toString());
+            map.put(CommonUtil.KEY_REVIEW_CONTENT,jsonMovie.get(CommonUtil.KEY_REVIEW_CONTENT).toString());
+            map.put(CommonUtil.KEY_REVIEW_URL,jsonMovie.get(CommonUtil.KEY_REVIEW_URL).toString());
+            list.add(map);
+        }
+        return list;
+    }
+
+
     //store hot movies
     public static Vector<ContentValues> StoreHotMovies(String jsonStr) throws JSONException {
         JSONObject json = new JSONObject(jsonStr);

@@ -1,4 +1,4 @@
-package com.example.cheng.myapplication;
+package com.example.cheng.myapplication.adapters;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -9,6 +9,7 @@ import android.widget.CursorAdapter;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.example.cheng.myapplication.R;
 import com.example.cheng.myapplication.data.MovieContract;
 import com.example.cheng.myapplication.util.CommonUtil;
 import com.squareup.picasso.Callback;

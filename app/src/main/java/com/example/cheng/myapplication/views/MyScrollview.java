@@ -23,10 +23,27 @@ public class MyScrollview extends ScrollView {
     }
 
     @Override
-    public boolean onTouchEvent(MotionEvent ev) {
-        switch (ev.getAction()){
-            case
+    public boolean onInterceptTouchEvent(MotionEvent ev) {
+        final int action = ev.getAction();
+        switch (action){
+            case MotionEvent.ACTION_DOWN:
+                super.onTouchEvent(ev);
+                break;
+            case MotionEvent.ACTION_MOVE:
+                return false;
+            case MotionEvent.ACTION_CANCEL:
+                super.onTouchEvent(ev);
+                break;
+            case MotionEvent.ACTION_UP:
+                return false;
+            default:
+                break;
         }
+        return false;
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent ev) {
         return super.onTouchEvent(ev);
     }
 }

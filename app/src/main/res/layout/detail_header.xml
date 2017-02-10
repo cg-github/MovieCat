@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/content_detail"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="0dp"
+    android:paddingLeft="0dp"
+    android:paddingRight="0dp"
+    android:paddingTop="0dp"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:context="com.example.cheng.myapplication.DetailActivity"
+    tools:showIn="@layout/activity_detail">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <TextView
+            tools:text="教父"
+            android:textSize="@dimen/text_title_size"
+            android:textColor="@color/colorMovieTitle"
+            android:gravity="center_vertical"
+            android:background="@color/colorMovieTitleBackground"
+            android:layout_height="wrap_content"
+            android:paddingLeft="@dimen/text_title_padding"
+            android:paddingBottom="@dimen/text_title_padding"
+            android:paddingTop="@dimen/text_title_padding"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:id="@+id/tv_title"
+            android:layout_width="match_parent" />
+
+        <ImageView
+            android:padding="@dimen/img_poster_padding"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:src="@drawable/hycs"
+            android:layout_below="@+id/tv_title"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:id="@+id/img_poster" />
+
+        <TextView
+            tools:text="1972"
+            android:textSize="25sp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/tv_title"
+            android:layout_toRightOf="@+id/img_poster"
+            android:layout_toEndOf="@+id/img_poster"
+            android:layout_marginLeft="19dp"
+            android:layout_marginStart="19dp"
+            android:layout_marginTop="30dp"
+            android:id="@+id/tv_release_date" />
+
+        <TextView
+            tools:text="8.3/10"
+            android:textSize="@dimen/text_vote_size"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/tv_release_date"
+            android:layout_alignLeft="@+id/tv_release_date"
+            android:layout_alignStart="@+id/tv_release_date"
+            android:layout_marginTop="19dp"
+            android:id="@+id/tv_vote" />
+
+        <TextView
+            tools:text="这是简介"
+            android:textSize="@dimen/text_over_view_size"
+            android:padding="@dimen/text_over_view_padding"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/img_poster"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:id="@+id/tv_overview" />
+
+        <Button
+            android:id="@+id/btn_refresh_reviews"
+            android:textSize="@dimen/text_over_view_size"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="获取评论"
+            android:layout_alignLeft="@+id/tv_vote"
+            android:layout_alignStart="@+id/tv_vote"
+            android:layout_below="@+id/tv_overview" />
+
+        <TextView
+            tools:text="获取评论失败！！"
+            android:textSize="@dimen/text_over_view_size"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/tv_overview"
+            android:layout_marginTop="12dp"
+            android:id="@+id/tv_reviews_note"
+            android:layout_alignRight="@+id/img_poster"
+            android:layout_alignEnd="@+id/img_poster" />
+
+    </RelativeLayout>
+</ScrollView>
+

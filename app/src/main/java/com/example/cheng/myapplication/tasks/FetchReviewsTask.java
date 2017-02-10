@@ -6,9 +6,13 @@ import android.graphics.Movie;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.util.Log;
+import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.cheng.myapplication.R;
 import com.example.cheng.myapplication.adapters.MovieReviewsAdapter;
+import com.example.cheng.myapplication.util.CommonUtil;
 import com.example.cheng.myapplication.util.JsonParser;
 import com.example.cheng.myapplication.util.UrlFactory;
 
@@ -33,12 +37,16 @@ public class FetchReviewsTask extends AsyncTask<Void,Void,List<HashMap<String,St
 
     Context mContext;
     MovieReviewsAdapter mAdapter;
+    ListView mListView;
     long mMovieId;
+    TextView mTv;
 
-    public FetchReviewsTask(Context context , MovieReviewsAdapter adapter,long movieId) {
+    public FetchReviewsTask(Context context , MovieReviewsAdapter adapter, ListView listView ,long movieId,TextView tv) {
         mContext = context;
         mAdapter = adapter;
+        mListView = listView;
         mMovieId = movieId;
+        mTv = tv;
     }
 
     @Override
@@ -94,6 +102,8 @@ public class FetchReviewsTask extends AsyncTask<Void,Void,List<HashMap<String,St
     @Override
     protected void onPostExecute(List<HashMap<String, String>> hashMaps) {
         super.onPostExecute(hashMaps);
+        mTv.setText("reviews count:"+hashMaps.size());
         mAdapter.changeData(hashMaps);
+        CommonUtil.setListViewHeightBasedOnChildren(mListView);
     }
 }

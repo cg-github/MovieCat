@@ -12,7 +12,9 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -46,6 +48,7 @@ public class DetailActivity extends AppCompatActivity  implements LoaderManager.
     ListView mListReview;
     Cursor mCursor;
 
+    View mHeader;
     MovieReviewsAdapter mReviewsAdapter;
     List<HashMap<String,String>> mList;
 
@@ -92,18 +95,29 @@ public class DetailActivity extends AppCompatActivity  implements LoaderManager.
         });
 
         mMovieIntent = getIntent();
-        mTvTitle = (TextView) findViewById(R.id.tv_title);
-        mTvReleaseDate = (TextView) findViewById(R.id.tv_release_date);
-        mTvVote = (TextView) findViewById(R.id.tv_vote);
-        mTvOverView = (TextView) findViewById(R.id.tv_overview);
-        mImgPoster = (ImageView) findViewById(R.id.img_poster);
-        mReviewNote = (TextView) findViewById(R.id.tv_reviews_note);
-        mBtnReview = (Button) findViewById(R.id.btn_refresh_reviews);
+        mHeader = getLayoutInflater().inflate(R.layout.detail_header,null);
+
+        mTvTitle = (TextView) mHeader.findViewById(R.id.tv_title);
+        mTvReleaseDate = (TextView) mHeader.findViewById(R.id.tv_release_date);
+        mTvVote = (TextView) mHeader.findViewById(R.id.tv_vote);
+        mTvOverView = (TextView) mHeader.findViewById(R.id.tv_overview);
+        mImgPoster = (ImageView) mHeader.findViewById(R.id.img_poster);
+        mReviewNote = (TextView) mHeader.findViewById(R.id.tv_reviews_note);
+        mBtnReview = (Button) mHeader.findViewById(R.id.btn_refresh_reviews);
         mListReview = (ListView) findViewById(R.id.list_reviews);
+
+        mListReview.addHeaderView(mHeader);
 
         mMovieId = mMovieIntent.getLongExtra(CommonUtil.KEY_MOVIE_ID,550);
         mReviewsAdapter = new MovieReviewsAdapter(this,null,R.layout.review_list_item,null,null);
         mListReview.setAdapter(mReviewsAdapter);
+//        mListReview.setOnTouchListener(new View.OnTouchListener() {
+//            @Override
+//            public boolean onTouch(View view, MotionEvent motionEvent) {
+//                view.getParent().requestDisallowInterceptTouchEvent(true);
+//                return false;
+//            }
+//        });
 
         mBtnReview.setOnClickListener(this);
 
@@ -175,7 +189,7 @@ public class DetailActivity extends AppCompatActivity  implements LoaderManager.
     public void onClick(View view) {
         switch (view.getId()){
             case R.id.btn_refresh_reviews:
-                new FetchReviewsTask(this,mReviewsAdapter,mMovieId).execute();
+                new FetchReviewsTask(this,mReviewsAdapter,mListReview,mMovieId,mReviewNote).execute();
                 break;
             default:
                 break;

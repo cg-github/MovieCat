@@ -78,6 +78,7 @@ public class MovieReviewsAdapter extends SimpleAdapter {
     public void changeData(List<HashMap<String, String>> hashMaps){
         list = hashMaps;
         notifyDataSetChanged();
+
     }
 
     public void clearData(){

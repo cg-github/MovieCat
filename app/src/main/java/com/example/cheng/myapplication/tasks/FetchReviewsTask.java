@@ -104,6 +104,6 @@ public class FetchReviewsTask extends AsyncTask<Void,Void,List<HashMap<String,St
         super.onPostExecute(hashMaps);
         mTv.setText("reviews count:"+hashMaps.size());
         mAdapter.changeData(hashMaps);
-        CommonUtil.setListViewHeightBasedOnChildren(mListView);
+//        CommonUtil.setListViewHeightBasedOnChildren(mListView);
     }
 }

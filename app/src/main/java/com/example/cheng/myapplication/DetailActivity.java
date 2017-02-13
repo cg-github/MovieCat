@@ -111,6 +111,7 @@ public class DetailActivity extends AppCompatActivity  implements LoaderManager.
         mMovieId = mMovieIntent.getLongExtra(CommonUtil.KEY_MOVIE_ID,550);
         mReviewsAdapter = new MovieReviewsAdapter(this,null,R.layout.review_list_item,null,null);
         mListReview.setAdapter(mReviewsAdapter);
+        new FetchReviewsTask(this,mReviewsAdapter,mListReview,mMovieId,mReviewNote).execute();
 //        mListReview.setOnTouchListener(new View.OnTouchListener() {
 //            @Override
 //            public boolean onTouch(View view, MotionEvent motionEvent) {

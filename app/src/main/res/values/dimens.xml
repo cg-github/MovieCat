@@ -10,4 +10,5 @@
     <dimen name="text_vote_size">18sp</dimen>
     <dimen name="text_over_view_size">20sp</dimen>
     <dimen name="text_over_view_padding">15dp</dimen>
+    <dimen name="detail_margin">50dp</dimen>
 </resources>

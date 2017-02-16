@@ -261,6 +261,9 @@ public class MovieProvider extends ContentProvider {
     @Override
     public int delete(Uri uri, String s, String[] strings) {
         SQLiteDatabase db = mDbHelper.getWritableDatabase();
+        long movieId = 0;
+        String selection = null;
+        String reviewId,trailerId;
         int rowsDeleted;
         if (null == s){
             s = "1";
@@ -270,13 +273,51 @@ public class MovieProvider extends ContentProvider {
                 rowsDeleted = db.delete(MovieContract.MovieEntry.TABLE_NAME,s,strings);
                 break;
             case MOVIE_WITH_ID:
-                long movieId = MovieContract.MovieEntry.getMovieIdFromUri(uri);
-                String selection = MovieContract.MovieEntry.TABLE_NAME+"."+
+                movieId = MovieContract.MovieEntry.getMovieIdFromUri(uri);
+                selection = MovieContract.MovieEntry.TABLE_NAME+"."+
                         MovieContract.MovieEntry.COLUMN_MOVIE_ID+"=?";
                 rowsDeleted=db.delete(MovieContract.MovieEntry.TABLE_NAME,
                        selection,
                         new String[]{Long.toString(movieId)}
                 );
+                break;
+            case REVIEW:
+                rowsDeleted = db.delete(MovieContract.ReviewEntry.TABLE_NAME,s,strings);
+                break;
+            case REVIEW_WITH_MOVIE_ID:
+                movieId = MovieContract.ReviewEntry.getMovieIdFromUri(uri);
+                selection = MovieContract.ReviewEntry.TABLE_NAME + "." +
+                        MovieContract.ReviewEntry.COLUMN_MOVIE_ID +"=?";
+                rowsDeleted =db.delete(MovieContract.ReviewEntry.TABLE_NAME,
+                        selection,
+                        new String[]{Long.toString(movieId)});
+                break;
+            case REVIEW_WITH_REVIEW_ID:
+                reviewId = MovieContract.ReviewEntry.getReviewIdFromUri(uri);
+                selection = MovieContract.ReviewEntry.TABLE_NAME+"."+
+                        MovieContract.ReviewEntry.COLUMN_REVIEW_ID +"=?";
+                rowsDeleted = db.delete(MovieContract.ReviewEntry.TABLE_NAME,
+                        selection,
+                        new String[]{reviewId});
+                break;
+            case TRAILER:
+                rowsDeleted = db.delete(MovieContract.TrailerEntry.TABLE_NAME,s,strings);
+                break;
+            case TRAILER_WITH_MOVIE_ID:
+                movieId = MovieContract.TrailerEntry.getMovieIdFromUri(uri);
+                selection = MovieContract.TrailerEntry.TABLE_NAME + "." +
+                        MovieContract.TrailerEntry.COLUMN_MOVIE_ID + "=?";
+                rowsDeleted = db.delete(MovieContract.TrailerEntry.TABLE_NAME,
+                        selection,
+                        new String[]{Long.toString(movieId)});
+                break;
+            case TRAILER_WITH_TRAILER_ID:
+                trailerId = MovieContract.TrailerEntry.getTrailerIdFromUri(uri);
+                selection = MovieContract.TrailerEntry.TABLE_NAME + "." +
+                        MovieContract.TrailerEntry.COLUMN_TRAILER_ID + "=?";
+                rowsDeleted = db.delete(MovieContract.TrailerEntry.TABLE_NAME,
+                        selection,
+                        new String[]{trailerId});
                 break;
             default:
                 throw new SQLException("Unknown uri:"+uri);
@@ -291,23 +332,70 @@ public class MovieProvider extends ContentProvider {
     @Override
     public int update(Uri uri, ContentValues contentValues, String s, String[] strings) {
         SQLiteDatabase db = mDbHelper.getWritableDatabase();
+        long movieId = 0;
+        String reviewId,trailerId;
+        String selection;
         int rowsUpdated;
         switch (mUriMatcher.match(uri)){
             case MOVIE:
                 rowsUpdated = db.update(MovieContract.MovieEntry.TABLE_NAME,contentValues,s,strings);
                 break;
             case MOVIE_WITH_ID:
-                long movieId = MovieContract.MovieEntry.getMovieIdFromUri(uri);
+                movieId = MovieContract.MovieEntry.getMovieIdFromUri(uri);
 
                 Log.i(LOG_TAG,"update excute!");
                 Log.i(LOG_TAG,"movieId: "+movieId);
-                String selection = MovieContract.MovieEntry.TABLE_NAME+"."+
+                selection = MovieContract.MovieEntry.TABLE_NAME+"."+
                         MovieContract.MovieEntry.COLUMN_MOVIE_ID+"=?";
                 rowsUpdated=db.update(MovieContract.MovieEntry.TABLE_NAME,
                         contentValues,
                         selection,
                         new String[]{Long.toString(movieId)}
                 );
+                break;
+            case REVIEW:
+                rowsUpdated = db.update(MovieContract.ReviewEntry.TABLE_NAME,contentValues,s,strings);
+                break;
+            case REVIEW_WITH_MOVIE_ID:
+                movieId = MovieContract.ReviewEntry.getMovieIdFromUri(uri);
+                selection = MovieContract.ReviewEntry.TABLE_NAME + "." +
+                        MovieContract.ReviewEntry.COLUMN_MOVIE_ID + "=?";
+                rowsUpdated = db.update(MovieContract.ReviewEntry.TABLE_NAME,
+                        contentValues,
+                        selection,
+                        new String[]{Long.toString(movieId)});
+                break;
+            case REVIEW_WITH_REVIEW_ID:
+                reviewId = MovieContract.ReviewEntry.getReviewIdFromUri(uri);
+                selection = MovieContract.ReviewEntry.TABLE_NAME + "." +
+                        MovieContract.ReviewEntry.COLUMN_REVIEW_ID + "=?";
+                rowsUpdated = db.update(MovieContract.ReviewEntry.TABLE_NAME,
+                        contentValues,
+                        selection,
+                        new String[]{reviewId
+                        });
+                break;
+            case TRAILER:
+                rowsUpdated = db.update(MovieContract.TrailerEntry.TABLE_NAME,contentValues,s,strings);
+                break;
+            case TRAILER_WITH_MOVIE_ID:
+                movieId = MovieContract.TrailerEntry.getMovieIdFromUri(uri);
+                selection = MovieContract.TrailerEntry.TABLE_NAME + "." +
+                        MovieContract.TrailerEntry.COLUMN_MOVIE_ID + "=?";
+                rowsUpdated = db.update(MovieContract.TrailerEntry.TABLE_NAME,
+                        contentValues,
+                        selection,
+                        new String[]{Long.toString(movieId)});
+                break;
+            case TRAILER_WITH_TRAILER_ID:
+                trailerId = MovieContract.TrailerEntry.getTrailerIdFromUri(uri);
+                selection = MovieContract.TrailerEntry.TABLE_NAME + "." +
+                        MovieContract.TrailerEntry.COLUMN_TRAILER_ID + "=?";
+                rowsUpdated = db.update(MovieContract.TrailerEntry.TABLE_NAME,
+                        contentValues,
+                        selection,
+                        new String[]{trailerId
+                        });
                 break;
             default:
                 throw new SQLException("Unknown uri:"+uri);

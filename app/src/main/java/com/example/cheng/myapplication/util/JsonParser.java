@@ -10,6 +10,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.PushbackInputStream;
+import java.net.PortUnreachableException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -84,6 +86,47 @@ public class JsonParser {
             contentValues.put(MovieContract.MovieEntry.COLUMN_POPULARITY,jsonMovie.getDouble(CommonUtil.KEY_POPULARITY));
             contentValues.put(MovieContract.MovieEntry.COLUMN_VOTE_AVERAGE,jsonMovie.getDouble(CommonUtil.KEY_MOVIE_VOTE_AVERAGE));
             contentValues.put(MovieContract.MovieEntry.COLUMN_TITLE,jsonMovie.getString(CommonUtil.KEY_MOVIE_TITLE));
+            cVVector.add(contentValues);
+        }
+        return cVVector;
+    }
+
+    public static Vector<ContentValues> StoreMovieReviews(String jsonStr) throws JSONException {
+
+        JSONObject json = new JSONObject(jsonStr);
+        long movieId = json.getLong("id");
+        JSONArray jsonArray = json.getJSONArray("results");
+        Vector<ContentValues> cVVector = new Vector<>(jsonArray.length());
+        JSONObject jsonMovie=null;
+        for (int i=0;i<jsonArray.length();i++){
+            jsonMovie = jsonArray.getJSONObject(i);
+            ContentValues contentValues = new ContentValues();
+            contentValues.put(MovieContract.ReviewEntry.COLUMN_REVIEW_ID,jsonMovie.get(CommonUtil.KEY_REVIEW_ID).toString());
+            contentValues.put(MovieContract.ReviewEntry.COLUMN_AUTHOR,jsonMovie.get(CommonUtil.KEY_REVIEW_AUTHOR).toString());
+            contentValues.put(MovieContract.ReviewEntry.COLUMN_CONTENT,jsonMovie.get(CommonUtil.KEY_REVIEW_CONTENT).toString());
+            contentValues.put(MovieContract.ReviewEntry.COLUMN_URL,jsonMovie.get(CommonUtil.KEY_REVIEW_URL).toString());
+            contentValues.put(MovieContract.ReviewEntry.COLUMN_MOVIE_ID,movieId);
+            cVVector.add(contentValues);
+        }
+        return cVVector;
+    }
+
+    public static Vector<ContentValues> StoreMovieTrailers(String jsonStr) throws JSONException {
+        JSONObject json = new JSONObject(jsonStr);
+        long moiveId = json.getLong("id");
+        JSONArray jsonArray = json.getJSONArray("results");
+        Vector<ContentValues> cVVector = new Vector<>(jsonArray.length());
+        JSONObject jsonTrailer = null;
+
+        for (int i=0;i<jsonArray.length();i++){
+            jsonTrailer = jsonArray.getJSONObject(i);
+            ContentValues contentValues = new ContentValues();
+            contentValues.put(MovieContract.TrailerEntry.COLUMN_TRAILER_ID,jsonTrailer.get(CommonUtil.KEY_TRAILER_ID).toString());
+            contentValues.put(MovieContract.TrailerEntry.COLUMN_KEY,jsonTrailer.get(CommonUtil.KEY_TRAILER_KEY).toString());
+            contentValues.put(MovieContract.TrailerEntry.COLUMN_NAME,jsonTrailer.get(CommonUtil.KEY_TRAILER_NAME).toString());
+            contentValues.put(MovieContract.TrailerEntry.COLUMN_SITE,jsonTrailer.get(CommonUtil.KEY_TRAILER_SITE).toString());
+            contentValues.put(MovieContract.TrailerEntry.COLUMN_SIZE,jsonTrailer.get(CommonUtil.KEY_TRAILER_SIZE).toString());
+            contentValues.put(MovieContract.TrailerEntry.COLUMN_MOVIE_ID,moiveId);
             cVVector.add(contentValues);
         }
         return cVVector;

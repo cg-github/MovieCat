@@ -2,6 +2,7 @@ package com.example.cheng.myapplication.tasks;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.pm.FeatureInfo;
 import android.graphics.Movie;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
@@ -31,26 +32,25 @@ import java.util.List;
  * Created by cheng on 2017/1/11.
  */
 
-public class FetchReviewsTask extends AsyncTask<Void,Void,List<HashMap<String,String>>>{
+public class FetchReviewsTask extends AsyncTask<Void,Void,Integer>{
 
     private static final String LOG_TAG = FetchReviewsTask.class.getSimpleName();
 
+    final static int RESULT_OK = 0;
+    final static int RESULT_FAIL = 1;
+
     Context mContext;
-    MovieReviewsAdapter mAdapter;
-    ListView mListView;
     long mMovieId;
     TextView mTv;
 
-    public FetchReviewsTask(Context context , MovieReviewsAdapter adapter, ListView listView ,long movieId,TextView tv) {
+    public FetchReviewsTask(Context context ,long movieId,TextView tv) {
         mContext = context;
-        mAdapter = adapter;
-        mListView = listView;
         mMovieId = movieId;
         mTv = tv;
     }
 
     @Override
-    protected List<HashMap<String, String>> doInBackground(Void... voids) {
+    protected Integer doInBackground(Void... voids) {
         HttpURLConnection connection = null;
         BufferedReader reader = null;
         String hotMovieStr=null;
@@ -90,20 +90,21 @@ public class FetchReviewsTask extends AsyncTask<Void,Void,List<HashMap<String,St
 
         try {
             if (hotMovieStr!=null && hotMovieStr.length()>0){
-                return JsonParser.GetMovieReviews(hotMovieStr);
+                 JsonParser.StoreMovieReviews(hotMovieStr);
+                return RESULT_OK;
             }
         } catch (JSONException e) {
             e.printStackTrace();
-            return null;
+            return RESULT_FAIL;
         }
-        return null;
+        return RESULT_FAIL;
     }
 
     @Override
-    protected void onPostExecute(List<HashMap<String, String>> hashMaps) {
-        super.onPostExecute(hashMaps);
-        mTv.setText("reviews count:"+hashMaps.size());
-        mAdapter.changeData(hashMaps);
-//        CommonUtil.setListViewHeightBasedOnChildren(mListView);
+    protected void onPostExecute(Integer i) {
+        super.onPostExecute(i);
+        if (i == RESULT_FAIL){
+            mTv.setText("Get reviews failed!");
+        }
     }
 }

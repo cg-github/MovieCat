@@ -13,6 +13,7 @@ import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
@@ -23,6 +24,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.cheng.myapplication.adapters.MovieReviewsAdapter;
+import com.example.cheng.myapplication.adapters.ReviewsAdapter;
+import com.example.cheng.myapplication.adapters.TrailersAdapter;
 import com.example.cheng.myapplication.data.MovieContract;
 import com.example.cheng.myapplication.tasks.FetchReviewsTask;
 import com.example.cheng.myapplication.tasks.OnTaskListener;
@@ -45,17 +48,19 @@ public class DetailActivity extends AppCompatActivity  implements LoaderManager.
     TextView mTvTitle,mTvReleaseDate,mTvVote,mTvOverView,mReviewNote;
     ImageView mImgPoster;
     Button mBtnReview;
-    ListView mListReview;
+    ListView mListReview,mListTrailer;
     Cursor mCursor;
 
-    View mHeader;
-    MovieReviewsAdapter mReviewsAdapter;
+    View mHeader,mFooter;
+    ReviewsAdapter mReviewsAdapter;
+    TrailersAdapter mTrailerAdapter;
     List<HashMap<String,String>> mList;
 
     long mMovieId;
 
     private static final int LOADER_MOVIE_DETAIL = 2;
-    private static final int LOADER_UPDATE_STATUS = 3;
+    private static final int LOADER_MOVIE_REVIEWS = 3;
+    private static final int LOADER_MOVIE_TRAILERS = 4;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,6 +101,7 @@ public class DetailActivity extends AppCompatActivity  implements LoaderManager.
 
         mMovieIntent = getIntent();
         mHeader = getLayoutInflater().inflate(R.layout.detail_header,null);
+        mFooter = getLayoutInflater().inflate(R.layout.list_trailer,null);
 
         mTvTitle = (TextView) mHeader.findViewById(R.id.tv_title);
         mTvReleaseDate = (TextView) mHeader.findViewById(R.id.tv_release_date);
@@ -104,18 +110,25 @@ public class DetailActivity extends AppCompatActivity  implements LoaderManager.
         mImgPoster = (ImageView) mHeader.findViewById(R.id.img_poster);
         mReviewNote = (TextView) mHeader.findViewById(R.id.tv_reviews_note);
         mBtnReview = (Button) mHeader.findViewById(R.id.btn_refresh_reviews);
+
+        mListTrailer = (ListView) mFooter.findViewById(R.id.list_trailers);
         mListReview = (ListView) findViewById(R.id.list_reviews);
 
         mListReview.addHeaderView(mHeader);
+        mListReview.addFooterView(mFooter);
 
         mMovieId = mMovieIntent.getLongExtra(CommonUtil.KEY_MOVIE_ID,550);
-        mReviewsAdapter = new MovieReviewsAdapter(this,null,R.layout.review_list_item,null,null);
+        mReviewsAdapter = new ReviewsAdapter(this,null,0);
+        mTrailerAdapter = new TrailersAdapter(this,null,0);
+
+        mListTrailer.setAdapter(mTrailerAdapter);
         mListReview.setAdapter(mReviewsAdapter);
-        new FetchReviewsTask(this,mReviewsAdapter,mListReview,mMovieId,mReviewNote).execute();
+        new FetchReviewsTask(this,mMovieId,mReviewNote).execute();
 //        mListReview.setOnTouchListener(new View.OnTouchListener() {
 //            @Override
 //            public boolean onTouch(View view, MotionEvent motionEvent) {
-//                view.getParent().requestDisallowInterceptTouchEvent(true);
+//                view.getParent().requestDisallowInterceptTouchEvent(true)
+// ;
 //                return false;
 //            }
 //        });
@@ -123,16 +136,96 @@ public class DetailActivity extends AppCompatActivity  implements LoaderManager.
         mBtnReview.setOnClickListener(this);
 
         getSupportLoaderManager().initLoader(LOADER_MOVIE_DETAIL,null,this);
-
-
+        getSupportLoaderManager().initLoader(LOADER_MOVIE_REVIEWS,null,this);
+        getSupportLoaderManager().initLoader(LOADER_MOVIE_TRAILERS,null,this);
     }
 
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_detail,menu);
+        return super.onCreateOptionsMenu(menu);
+    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        Uri uri = null;
+        switch (id){
+            case LOADER_MOVIE_DETAIL:
+                uri = MovieContract.MovieEntry.buildUriWithMovieId(mMovieId);
+                return new CursorLoader(this,
+                        uri,
+                        MovieContract.MOVIE_PROJECTION,
+                        null,
+                        null,
+                        null
+                );
+            case LOADER_MOVIE_REVIEWS:
+                uri = MovieContract.ReviewEntry.buildUriWithMovieId(mMovieId);
+                return new CursorLoader(this,
+                        uri,
+                        MovieContract.REVIEW_PROJECTION,
+                        null,
+                        null,
+                        null
+                );
+            case LOADER_MOVIE_TRAILERS:
+                uri = MovieContract.TrailerEntry.buildUriWithMovieId(mMovieId);
+                return new CursorLoader(this,
+                        uri,
+                        MovieContract.TRAILER_PROJECTION,
+                        null,
+                        null,
+                        null
+                );
+            default:
+                break;
+        }
+        return null;
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        int loadId = loader.getId();
+        switch (loadId){
+            case LOADER_MOVIE_DETAIL:
+                if (data.moveToFirst()){
+                    mCursor = data;
+                    initView(data);
+                }
+                break;
+            case LOADER_MOVIE_REVIEWS:
+                mReviewsAdapter.swapCursor(data);
+                break;
+            case LOADER_MOVIE_TRAILERS:
+                mTrailerAdapter.swapCursor(data);
+                break;
+            default:
+                break;
+        }
+
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+
+    }
+
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()){
+            case R.id.btn_refresh_reviews:
+                new FetchReviewsTask(this,mMovieId,mReviewNote).execute();
+                break;
+            default:
+                break;
+        }
     }
 
     private void initView(Cursor cursor) {
@@ -158,42 +251,5 @@ public class DetailActivity extends AppCompatActivity  implements LoaderManager.
                     }
                 });
 
-    }
-
-    @Override
-    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        Uri uri = MovieContract.MovieEntry.buildUriWithMovieId(mMovieId);
-        return new CursorLoader(this,
-                uri,
-                MovieContract.MOVIE_PROJECTION,
-                null,
-                null,
-                null
-                );
-
-    }
-
-    @Override
-    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        if (data.moveToFirst()){
-            mCursor = data;
-            initView(data);
-        }
-    }
-
-    @Override
-    public void onLoaderReset(Loader<Cursor> loader) {
-
-    }
-
-    @Override
-    public void onClick(View view) {
-        switch (view.getId()){
-            case R.id.btn_refresh_reviews:
-                new FetchReviewsTask(this,mReviewsAdapter,mListReview,mMovieId,mReviewNote).execute();
-                break;
-            default:
-                break;
-        }
     }
 }

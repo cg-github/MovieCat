@@ -154,6 +154,7 @@ public class MovieContract {
             ReviewEntry.COLUMN_REVIEW_ID,
             ReviewEntry.COLUMN_AUTHOR,
             ReviewEntry.COLUMN_CONTENT,
+            ReviewEntry.COLUMN_URL,
             ReviewEntry.COLUMN_MOVIE_ID
     };
 
@@ -161,7 +162,8 @@ public class MovieContract {
     public static final int REVIEW_COL_REVIEW_ID = 1;
     public static final int REVIEW_COL_AUTHOR = 2;
     public static final int REVIEW_COL_CONTENT = 3;
-    public static final int REVIEW_COL_MOVIE_ID = 4;
+    public static final int REVIEW_COL_URL = 4;
+    public static final int REVIEW_COL_MOVIE_ID = 5;
 
     public static final String[] TRAILER_PROJECTION = {
             TrailerEntry._ID,

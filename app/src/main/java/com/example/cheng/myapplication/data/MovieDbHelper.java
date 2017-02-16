@@ -40,6 +40,7 @@ public class MovieDbHelper extends SQLiteOpenHelper{
                 MovieContract.ReviewEntry.COLUMN_REVIEW_ID + " TEXT UNIQUE NOT NULL, "+
                 MovieContract.ReviewEntry.COLUMN_AUTHOR + " TEXT NOT NULL, "+
                 MovieContract.ReviewEntry.COLUMN_CONTENT + " TEXT NOT NULL, "+
+                MovieContract.ReviewEntry.COLUMN_URL + " TEXT NOT NULL, "+
                 MovieContract.ReviewEntry.COLUMN_MOVIE_ID + " INTEGER NOT NULL );";
 
         final String SQL_CREATE_TRAILER_TABLE = "CREATE TABLE "+ MovieContract.TrailerEntry.TABLE_NAME+" ("+

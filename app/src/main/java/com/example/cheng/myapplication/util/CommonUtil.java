@@ -53,6 +53,13 @@ public class CommonUtil {
     public static final String KEY_REVIEW_CONTENT = "content";
     public static final String KEY_REVIEW_URL = "url";
 
+    //预告片数据中各键
+    public static final String KEY_TRAILER_ID = "id";
+    public static final String KEY_TRAILER_KEY = "key";
+    public static final String KEY_TRAILER_NAME = "name";
+    public static final String KEY_TRAILER_SITE = "site";
+    public static final String KEY_TRAILER_SIZE = "size";
+
     //设置listview 高度
 //    public static void setListViewHeightBasedOnChildren(ListView listView){
 //        ListAdapter listAdapter = listView.getAdapter();

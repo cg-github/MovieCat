@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <VideoView
+        android:layout_width="204dp"
+        android:layout_height="144dp"
+        android:id="@+id/trailer_video" />
+    <TextView
+        tools:text="这是预告片！"
+        android:textSize="@dimen/text_vote_size"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/tv_trailer_name"/>
+</LinearLayout>

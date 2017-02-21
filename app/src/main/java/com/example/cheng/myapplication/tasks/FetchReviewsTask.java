@@ -1,5 +1,6 @@
 package com.example.cheng.myapplication.tasks;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.FeatureInfo;
@@ -13,6 +14,7 @@ import android.widget.Toast;
 
 import com.example.cheng.myapplication.R;
 import com.example.cheng.myapplication.adapters.MovieReviewsAdapter;
+import com.example.cheng.myapplication.data.MovieContract;
 import com.example.cheng.myapplication.util.CommonUtil;
 import com.example.cheng.myapplication.util.JsonParser;
 import com.example.cheng.myapplication.util.UrlFactory;
@@ -27,6 +29,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Vector;
 
 /**
  * Created by cheng on 2017/1/11.
@@ -39,14 +42,17 @@ public class FetchReviewsTask extends AsyncTask<Void,Void,Integer>{
     final static int RESULT_OK = 0;
     final static int RESULT_FAIL = 1;
 
+    OnTaskListener mListener;
+
     Context mContext;
     long mMovieId;
     TextView mTv;
 
-    public FetchReviewsTask(Context context ,long movieId,TextView tv) {
+    public FetchReviewsTask(Context context ,long movieId,TextView tv,OnTaskListener listener) {
         mContext = context;
         mMovieId = movieId;
         mTv = tv;
+        mListener = listener;
     }
 
     @Override
@@ -90,7 +96,10 @@ public class FetchReviewsTask extends AsyncTask<Void,Void,Integer>{
 
         try {
             if (hotMovieStr!=null && hotMovieStr.length()>0){
-                 JsonParser.StoreMovieReviews(hotMovieStr);
+                Vector<ContentValues> cVVector = JsonParser.StoreMovieReviews(hotMovieStr);
+                ContentValues[] contentValues = new ContentValues[cVVector.size()];
+                cVVector.toArray(contentValues);
+                mContext.getContentResolver().bulkInsert(MovieContract.ReviewEntry.CONTENT_URI,contentValues);
                 return RESULT_OK;
             }
         } catch (JSONException e) {
@@ -105,6 +114,13 @@ public class FetchReviewsTask extends AsyncTask<Void,Void,Integer>{
         super.onPostExecute(i);
         if (i == RESULT_FAIL){
             mTv.setText("Get reviews failed!");
+            mListener.onFailed();
+        }else if (i == RESULT_OK){
+            mListener.onSuccess();
+        }else{
+            mTv.setText("Unkown misdake!");
+            mListener.onFailed();
         }
+
     }
 }

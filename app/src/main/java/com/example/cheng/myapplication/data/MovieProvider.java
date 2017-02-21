@@ -4,6 +4,7 @@ import android.content.ContentProvider;
 import android.content.ContentValues;
 import android.content.UriMatcher;
 import android.database.Cursor;
+import android.database.MergeCursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
@@ -28,6 +29,7 @@ public class MovieProvider extends ContentProvider {
     static final int TRAILER = 105;
     static final int TRAILER_WITH_MOVIE_ID = 106;
     static final int TRAILER_WITH_TRAILER_ID = 107;
+    static final int DETAIL = 108;
 
     MovieDbHelper mDbHelper;
     UriMatcher mUriMatcher;
@@ -136,6 +138,19 @@ public class MovieProvider extends ContentProvider {
                         null,
                         null
                 );
+            case DETAIL:
+                Uri movieUri = MovieContract.MovieEntry.buildUriWithMovieId(movieId);
+                Cursor corMoive = query(movieUri,MovieContract.MOVIE_PROJECTION,null,null,null);
+                Uri reviewUri = MovieContract.ReviewEntry.buildUriWithMovieId(movieId);
+                Cursor corReview = query(reviewUri,MovieContract.REVIEW_PROJECTION,null,null,null);
+                Uri trailerUri = MovieContract.TrailerEntry.buildUriWithMovieId(movieId);
+                Cursor corTrailer = query(trailerUri,MovieContract.TRAILER_PROJECTION,null,null,null);
+
+                Cursor[] cors = new Cursor[]{corMoive,corReview,corTrailer};
+
+                Cursor corDetail = new MergeCursor(cors);
+
+                return corDetail;
             default:
             return null;
         }
@@ -425,6 +440,7 @@ public class MovieProvider extends ContentProvider {
         uriMatcher.addURI(authrity, MovieContract.PATH_TRAILER,TRAILER);
         uriMatcher.addURI(authrity, MovieContract.PATH_TRAILER+"/#",TRAILER_WITH_MOVIE_ID);
         uriMatcher.addURI(authrity, MovieContract.PATH_TRAILER+"/*",TRAILER_WITH_TRAILER_ID);
+        uriMatcher.addURI(authrity, MovieContract.PATH_DETAIL, DETAIL);
 
         return uriMatcher;
     }

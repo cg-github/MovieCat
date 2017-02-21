@@ -28,6 +28,7 @@ import com.example.cheng.myapplication.adapters.ReviewsAdapter;
 import com.example.cheng.myapplication.adapters.TrailersAdapter;
 import com.example.cheng.myapplication.data.MovieContract;
 import com.example.cheng.myapplication.tasks.FetchReviewsTask;
+import com.example.cheng.myapplication.tasks.FetchTrailersTask;
 import com.example.cheng.myapplication.tasks.OnTaskListener;
 import com.example.cheng.myapplication.tasks.UpdateStatusTask;
 import com.example.cheng.myapplication.util.CommonUtil;
@@ -40,7 +41,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 
-public class DetailActivity extends AppCompatActivity  implements LoaderManager.LoaderCallbacks<Cursor>, View.OnClickListener {
+public class DetailActivity extends AppCompatActivity  implements LoaderManager.LoaderCallbacks<Cursor>{
 
     private static final String LOG_TAG=DetailActivity.class.getSimpleName();
 
@@ -123,7 +124,6 @@ public class DetailActivity extends AppCompatActivity  implements LoaderManager.
 
         mListTrailer.setAdapter(mTrailerAdapter);
         mListReview.setAdapter(mReviewsAdapter);
-        new FetchReviewsTask(this,mMovieId,mReviewNote).execute();
 //        mListReview.setOnTouchListener(new View.OnTouchListener() {
 //            @Override
 //            public boolean onTouch(View view, MotionEvent motionEvent) {
@@ -133,7 +133,6 @@ public class DetailActivity extends AppCompatActivity  implements LoaderManager.
 //            }
 //        });
 
-        mBtnReview.setOnClickListener(this);
 
         getSupportLoaderManager().initLoader(LOADER_MOVIE_DETAIL,null,this);
         getSupportLoaderManager().initLoader(LOADER_MOVIE_REVIEWS,null,this);
@@ -149,7 +148,36 @@ public class DetailActivity extends AppCompatActivity  implements LoaderManager.
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()){
+            case R.id.action_refresh:
+//                new FetchReviewsTask(this, mMovieId, mReviewNote, new OnTaskListener() {
+//                    @Override
+//                    public void onSuccess() {
+//                        Toast.makeText(getApplicationContext(),"get reviews success!",Toast.LENGTH_LONG).show();
+//                        getSupportLoaderManager().restartLoader(LOADER_MOVIE_REVIEWS,null,DetailActivity.this);
+//                    }
+//
+//                    @Override
+//                    public void onFailed() {
+//                        Toast.makeText(getApplicationContext(),"get reviews failed!",Toast.LENGTH_LONG).show();
+//                    }
+//                }).execute();
+                new FetchTrailersTask(this,mMovieId,new OnTaskListener(){
+                    @Override
+                    public void onSuccess() {
+                        Toast.makeText(getApplicationContext(),"get trailers success!",Toast.LENGTH_LONG).show();
+                        getSupportLoaderManager().restartLoader(LOADER_MOVIE_TRAILERS,null,DetailActivity.this);
+                    }
 
+                    @Override
+                    public void onFailed() {
+                        Toast.makeText(getApplicationContext(),"get trailers failed!",Toast.LENGTH_LONG).show();
+                    }
+                }).execute();
+                break;
+            default:
+                break;
+        }
         return super.onOptionsItemSelected(item);
     }
 
@@ -195,15 +223,18 @@ public class DetailActivity extends AppCompatActivity  implements LoaderManager.
         int loadId = loader.getId();
         switch (loadId){
             case LOADER_MOVIE_DETAIL:
+                Toast.makeText(DetailActivity.this,"LOADER_MOVIE_DETAIL finished!",Toast.LENGTH_LONG).show();
                 if (data.moveToFirst()){
                     mCursor = data;
                     initView(data);
                 }
                 break;
             case LOADER_MOVIE_REVIEWS:
+                Toast.makeText(DetailActivity.this,"LOADER_MOVIE_REVIEWS finished!",Toast.LENGTH_LONG).show();
                 mReviewsAdapter.swapCursor(data);
                 break;
             case LOADER_MOVIE_TRAILERS:
+                Toast.makeText(DetailActivity.this,"LOADER_MOVIE_TRAILERS finished!",Toast.LENGTH_LONG).show();
                 mTrailerAdapter.swapCursor(data);
                 break;
             default:
@@ -214,14 +245,15 @@ public class DetailActivity extends AppCompatActivity  implements LoaderManager.
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
-
-    }
-
-    @Override
-    public void onClick(View view) {
-        switch (view.getId()){
-            case R.id.btn_refresh_reviews:
-                new FetchReviewsTask(this,mMovieId,mReviewNote).execute();
+        int loadId = loader.getId();
+        switch (loadId){
+            case LOADER_MOVIE_REVIEWS:
+                Toast.makeText(DetailActivity.this,"LOADER_MOVIE_REVIEWS reset finished!",Toast.LENGTH_LONG).show();
+                mReviewsAdapter.swapCursor(null);
+                break;
+            case LOADER_MOVIE_TRAILERS:
+                Toast.makeText(DetailActivity.this,"LOADER_MOVIE_TRAILERS reset finished!",Toast.LENGTH_LONG).show();
+                mTrailerAdapter.swapCursor(null);
                 break;
             default:
                 break;

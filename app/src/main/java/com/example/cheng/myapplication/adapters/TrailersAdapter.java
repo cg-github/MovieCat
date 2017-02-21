@@ -23,7 +23,7 @@ public class TrailersAdapter extends CursorAdapter {
 
     @Override
     public View newView(Context context, Cursor cursor, ViewGroup viewGroup) {
-        View rootView = LayoutInflater.from(context).inflate(R.layout.trailer_list_item,viewGroup);
+        View rootView = LayoutInflater.from(context).inflate(R.layout.trailer_list_item,viewGroup,false);
         ViewHolder viewHolder = new ViewHolder();
         viewHolder.tvTrailerName = (TextView) rootView.findViewById(R.id.tv_trailer_name);
         viewHolder.vvTrailer = (VideoView) rootView.findViewById(R.id.trailer_video);

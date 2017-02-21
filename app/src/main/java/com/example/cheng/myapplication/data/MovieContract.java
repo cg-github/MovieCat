@@ -17,6 +17,7 @@ public class MovieContract {
     public static final String PATH_MOVIE = "movie";
     public static final String PATH_REVIEW = "review";
     public static final String PATH_TRAILER = "trailer";
+    public static final String PATH_DETAIL = "detial";
 
     public static class MovieEntry implements BaseColumns{
 

@@ -23,7 +23,7 @@ public class ReviewsAdapter extends CursorAdapter {
 
     @Override
     public View newView(Context context, Cursor cursor, ViewGroup viewGroup) {
-        View rootView = LayoutInflater.from(context).inflate(R.layout.review_list_item,viewGroup);
+        View rootView = LayoutInflater.from(context).inflate(R.layout.review_list_item,viewGroup,false);
         ViewHolder viewHolder = new ViewHolder();
         viewHolder.tvAuthor = (TextView) rootView.findViewById(R.id.tv_author);
         viewHolder.tvReview = (TextView) rootView.findViewById(R.id.tv_review);

@@ -132,4 +132,9 @@ public class JsonParser {
         return cVVector;
     }
 
+    public static int GetMovieRuntime(String jsonStr) throws JSONException {
+        JSONObject json = new JSONObject(jsonStr);
+        return json.getInt(CommonUtil.KEY_MOVIE_RUNTIME);
+    }
+
 }

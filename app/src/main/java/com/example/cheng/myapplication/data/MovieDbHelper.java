@@ -32,7 +32,8 @@ public class MovieDbHelper extends SQLiteOpenHelper{
                 MovieContract.MovieEntry.COLUMN_POPULARITY + " REAL NOT NULL, "+
                 MovieContract.MovieEntry.COLUMN_VOTE_AVERAGE + " REAL NOT NULL, "+
                 MovieContract.MovieEntry.COLUMN_STATUS + " INTEGER DEFAULT "+
-                MovieContract.STATUS_NOT_COLLECTED+
+                MovieContract.STATUS_NOT_COLLECTED+" ," +
+                MovieContract.MovieEntry.COLUMN_RUNTIME + " INTEGER DEFAULT 0"+
                 ");";
 
         final String SQL_CREATE_REVIEW_TABLE = "CREATE TABLE "+ MovieContract.ReviewEntry.TABLE_NAME+" ("+

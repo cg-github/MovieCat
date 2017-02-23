@@ -82,4 +82,23 @@ public class UrlFactory {
         }
         return url;
     }
+
+    public static URL GetMovieDetialUrlById(long movieId) {
+        URL url = null;
+        Uri.Builder builder = new Uri.Builder();
+        builder.scheme(TMDB_SCHEME)
+                .authority(TMDB_AUTHRITY)
+                .appendPath(TMDB_VERSION_PATH)
+                .appendPath(TMDB_MOVIE_PATH)
+                .appendPath(Long.toString(movieId))
+                .appendQueryParameter("api_key",TMDB_API_KEY);
+
+        try {
+            url = new URL(builder.toString());
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+        return url;
+    }
+
 }

@@ -14,6 +14,7 @@ public class MovieContract {
 
     public static final Uri BASE_CONTENT_URI = Uri.parse("content://"+CONTENT_AUTHORITY);
 
+
     public static final String PATH_MOVIE = "movie";
     public static final String PATH_REVIEW = "review";
     public static final String PATH_TRAILER = "trailer";
@@ -38,6 +39,7 @@ public class MovieContract {
         public static final String COLUMN_POPULARITY = "popularity";
         public static final String COLUMN_VOTE_AVERAGE = "vote_average";
         public static final String COLUMN_STATUS = "status";
+        public static final String COLUMN_RUNTIME = "runtime";
 
         public static Uri buildMovieUri(long id){
             return ContentUris.withAppendedId(CONTENT_URI,id);
@@ -126,6 +128,18 @@ public class MovieContract {
         }
 
     }
+
+    public static class DetialEntry {
+        public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_DETAIL).build();
+        public static Uri buildUriWithMoiveId(long movieId){
+            return CONTENT_URI.buildUpon()
+                    .appendPath(Long.toString(movieId)).build();
+        }
+        public static long getMoiveIdFromUri(Uri uri){
+            return Long.parseLong(uri.getPathSegments().get(1));
+        }
+    }
+
     public static final String[] MOVIE_PROJECTION ={
             MovieEntry._ID,
             MovieEntry.COLUMN_POSTER_PATH,
@@ -136,7 +150,8 @@ public class MovieContract {
             MovieEntry.COLUMN_TITLE,
             MovieEntry.COLUMN_POPULARITY,
             MovieEntry.COLUMN_VOTE_AVERAGE,
-            MovieEntry.COLUMN_STATUS
+            MovieEntry.COLUMN_STATUS,
+            MovieEntry.COLUMN_RUNTIME
     };
 
     public static final int COL_ID = 0;
@@ -149,6 +164,7 @@ public class MovieContract {
     public static final int COL_POPULARITY = 7;
     public static final int COL_VOTE_AVERAGE = 8;
     public static final int COL_STATUS = 9;
+    public static final int COL_RUNTIME = 10;
 
     public static final String[] REVIEW_PROJECTION = {
             ReviewEntry._ID,

@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.FeatureInfo;
 import android.graphics.Movie;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -20,6 +21,7 @@ import com.example.cheng.myapplication.util.JsonParser;
 import com.example.cheng.myapplication.util.UrlFactory;
 
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -35,9 +37,9 @@ import java.util.Vector;
  * Created by cheng on 2017/1/11.
  */
 
-public class FetchReviewsTask extends AsyncTask<Void,Void,Integer>{
+public class FetchMovieDetailTask extends AsyncTask<Void,Void,Integer>{
 
-    private static final String LOG_TAG = FetchReviewsTask.class.getSimpleName();
+    private static final String LOG_TAG = FetchMovieDetailTask.class.getSimpleName();
 
     final static int RESULT_OK = 0;
     final static int RESULT_FAIL = 1;
@@ -48,7 +50,7 @@ public class FetchReviewsTask extends AsyncTask<Void,Void,Integer>{
     long mMovieId;
     TextView mTv;
 
-    public FetchReviewsTask(Context context ,long movieId,OnTaskListener listener) {
+    public FetchMovieDetailTask(Context context ,long movieId,OnTaskListener listener) {
         mContext = context;
         mMovieId = movieId;
         mListener = listener;
@@ -59,7 +61,7 @@ public class FetchReviewsTask extends AsyncTask<Void,Void,Integer>{
         HttpURLConnection connection = null;
         BufferedReader reader = null;
         String hotMovieStr=null;
-        URL url= UrlFactory.GetReviewUrlById(mMovieId);
+        URL url= UrlFactory.GetMovieDetialUrlById(mMovieId);
 
         Log.i(LOG_TAG,url.toString());
         try {
@@ -95,10 +97,11 @@ public class FetchReviewsTask extends AsyncTask<Void,Void,Integer>{
 
         try {
             if (hotMovieStr!=null && hotMovieStr.length()>0){
-                Vector<ContentValues> cVVector = JsonParser.StoreMovieReviews(hotMovieStr);
-                ContentValues[] contentValues = new ContentValues[cVVector.size()];
-                cVVector.toArray(contentValues);
-                mContext.getContentResolver().bulkInsert(MovieContract.ReviewEntry.CONTENT_URI,contentValues);
+                int runtime = JsonParser.GetMovieRuntime(hotMovieStr);
+                ContentValues contentValues = new ContentValues();
+                contentValues.put(MovieContract.MovieEntry.COLUMN_RUNTIME,runtime);
+                Uri updateUri = MovieContract.MovieEntry.buildUriWithMovieId(mMovieId);
+                mContext.getContentResolver().update(updateUri,contentValues,null,null);
                 return RESULT_OK;
             }
         } catch (JSONException e) {
@@ -121,3 +124,4 @@ public class FetchReviewsTask extends AsyncTask<Void,Void,Integer>{
 
     }
 }
+

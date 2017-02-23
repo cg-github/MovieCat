@@ -139,14 +139,15 @@ public class MovieProvider extends ContentProvider {
                         null
                 );
             case DETAIL:
+                movieId = MovieContract.DetialEntry.getMoiveIdFromUri(uri);
                 Uri movieUri = MovieContract.MovieEntry.buildUriWithMovieId(movieId);
                 Cursor corMoive = query(movieUri,MovieContract.MOVIE_PROJECTION,null,null,null);
-                Uri reviewUri = MovieContract.ReviewEntry.buildUriWithMovieId(movieId);
-                Cursor corReview = query(reviewUri,MovieContract.REVIEW_PROJECTION,null,null,null);
                 Uri trailerUri = MovieContract.TrailerEntry.buildUriWithMovieId(movieId);
                 Cursor corTrailer = query(trailerUri,MovieContract.TRAILER_PROJECTION,null,null,null);
+                Uri reviewUri = MovieContract.ReviewEntry.buildUriWithMovieId(movieId);
+                Cursor corReview = query(reviewUri,MovieContract.REVIEW_PROJECTION,null,null,null);
 
-                Cursor[] cors = new Cursor[]{corMoive,corReview,corTrailer};
+                Cursor[] cors = new Cursor[]{corMoive,corTrailer, corReview};
 
                 Cursor corDetail = new MergeCursor(cors);
 
@@ -440,7 +441,7 @@ public class MovieProvider extends ContentProvider {
         uriMatcher.addURI(authrity, MovieContract.PATH_TRAILER,TRAILER);
         uriMatcher.addURI(authrity, MovieContract.PATH_TRAILER+"/#",TRAILER_WITH_MOVIE_ID);
         uriMatcher.addURI(authrity, MovieContract.PATH_TRAILER+"/*",TRAILER_WITH_TRAILER_ID);
-        uriMatcher.addURI(authrity, MovieContract.PATH_DETAIL, DETAIL);
+        uriMatcher.addURI(authrity, MovieContract.PATH_DETAIL+"/#", DETAIL);
 
         return uriMatcher;
     }

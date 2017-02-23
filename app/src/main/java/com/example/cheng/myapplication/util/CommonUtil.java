@@ -39,6 +39,7 @@ public class CommonUtil {
     public static final String KEY_MOVIE_BACKDROP_PATH = "backdrop_path";
     public static final String KEY_MOVIE_RELEASE_DATE = "release_date";
     public static final String KEY_MOVIE_VOTE_AVERAGE = "vote_average";
+    public static final String KEY_MOVIE_RUNTIME = "runtime";
 
 
 

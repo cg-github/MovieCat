@@ -40,10 +40,21 @@ public class TestMovieProvider extends AndroidTestCase {
 //        assertFalse(false);
 
         Vector<ContentValues> cVTrailers = JsonParser.StoreMovieTrailers(TEST_TRAILER_STRING);
-        ContentValues[] cValues = new ContentValues[cVTrailers.size()];
-        cVTrailers.toArray(cValues);
-        getContext().getContentResolver().bulkInsert(MovieContract.TrailerEntry.CONTENT_URI,cValues);
+        ContentValues[] cValuesTrailers = new ContentValues[cVTrailers.size()];
+        cVTrailers.toArray(cValuesTrailers);
+        getContext().getContentResolver().bulkInsert(MovieContract.TrailerEntry.CONTENT_URI,cValuesTrailers);
         assertTrue(true);
+        Vector<ContentValues> cVReviews = JsonParser.StoreMovieReviews(TEST_REVIEW_STRING);
+        ContentValues[] cValuesReview = new ContentValues[cVReviews.size()];
+        cVReviews.toArray(cValuesReview);
+        getContext().getContentResolver().bulkInsert(MovieContract.ReviewEntry.CONTENT_URI,cValuesReview);
+        assertTrue(true);
+        Vector<ContentValues> cVMovies = JsonParser.StoreHotMovies(TEST_JSON_STRING);
+        ContentValues[] cValuesMovies = new ContentValues[cVMovies.size()];
+        cVMovies.toArray(cValuesMovies);
+        getContext().getContentResolver().bulkInsert(MovieContract.MovieEntry.CONTENT_URI,cValuesMovies);
+        assertTrue(true);
+
     }
 
     public void testQuery(){
@@ -70,39 +81,47 @@ public class TestMovieProvider extends AndroidTestCase {
 //        assertTrue(corSingle.moveToFirst());
 //        assertEquals(movieTitle,corSingle.getString(MovieContract.COL_TITLE));
         Uri testUri;
-         Cursor corAll = getContext().getContentResolver().query(
-                 MovieContract.TrailerEntry.CONTENT_URI,
-                 MovieContract.TRAILER_PROJECTION,
-                 null,
-                 null,
-                 null
-         );
-         assertTrue(corAll.moveToFirst());
-         assertEquals(5,corAll.getCount());
-        corAll.close();
-        testUri = MovieContract.TrailerEntry.buildUriWithMovieId(movieId);
-        Cursor corSingle =getContext().getContentResolver().query(
+        testUri = MovieContract.DetialEntry.buildUriWithMoiveId(movieId);
+        Cursor cor = getContext().getContentResolver().query(
                 testUri,
-                MovieContract.TRAILER_PROJECTION,
+                null,
                 null,
                 null,
                 null
         );
-        assertTrue(corSingle.moveToFirst());
-        assertEquals(5,corSingle.getCount());
-        corAll.close();
-        testUri = MovieContract.TrailerEntry.buildUriWithTrailerId(trailerId);
-        Cursor corReview = getContext().getContentResolver().query(
-                testUri,
-                MovieContract.TRAILER_PROJECTION,
-                null,
-                null,
-                null
-        );
-        assertTrue(corReview.moveToFirst());
-        assertEquals(1,corReview.getCount());
-        assertEquals("NW0lOo9_8Bw",corReview.getString(MovieContract.TRAILER_COL_KEY));
-        corAll.close();
+//         Cursor corAll = getContext().getContentResolver().query(
+//                 MovieContract.TrailerEntry.CONTENT_URI,
+//                 MovieContract.TRAILER_PROJECTION,
+//                 null,
+//                 null,
+//                 null
+//         );
+//         assertTrue(corAll.moveToFirst());
+//         assertEquals(5,corAll.getCount());
+//        corAll.close();
+//        testUri = MovieContract.TrailerEntry.buildUriWithMovieId(movieId);
+//        Cursor corSingle =getContext().getContentResolver().query(
+//                testUri,
+//                MovieContract.TRAILER_PROJECTION,
+//                null,
+//                null,
+//                null
+//        );
+//        assertTrue(corSingle.moveToFirst());
+//        assertEquals(5,corSingle.getCount());
+//        corAll.close();
+//        testUri = MovieContract.TrailerEntry.buildUriWithTrailerId(trailerId);
+//        Cursor corReview = getContext().getContentResolver().query(
+//                testUri,
+//                MovieContract.TRAILER_PROJECTION,
+//                null,
+//                null,
+//                null
+//        );
+//        assertTrue(corReview.moveToFirst());
+//        assertEquals(1,corReview.getCount());
+//        assertEquals("NW0lOo9_8Bw",corReview.getString(MovieContract.TRAILER_COL_KEY));
+//        corAll.close();
     }
 
     public void testDelete(){

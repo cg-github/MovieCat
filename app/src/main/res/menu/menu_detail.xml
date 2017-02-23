@@ -5,7 +5,7 @@
     <item android:title="@string/action_refresh"
         android:id="@+id/action_refresh"
         app:showAsAction="never"/>
-    <item android:title="Item"
+    <item android:title="@string/action_collect"
         android:id="@+id/action_collect"
         app:showAsAction="never"/>
 </menu>

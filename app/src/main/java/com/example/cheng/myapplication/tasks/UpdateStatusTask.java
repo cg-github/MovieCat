@@ -18,23 +18,22 @@ public class UpdateStatusTask extends AsyncTask<Uri,Integer,Integer> {
 
     Context mContext;
     OnTaskListener mListener;
+    ContentValues updateValues;
 
 
-    public UpdateStatusTask(Context mContext, OnTaskListener mListener) {
+    public UpdateStatusTask(Context mContext, ContentValues contentValues ,OnTaskListener mListener) {
         this.mContext = mContext;
         this.mListener = mListener;
+        this.updateValues = contentValues;
     }
 
 
     @Override
     protected Integer doInBackground(Uri... uris) {
         if (uris.length>0){
-            ContentValues contentValues = new ContentValues();
             int rowUpdated=0;
-            contentValues.put(MovieContract.MovieEntry.COLUMN_STATUS
-                    ,MovieContract.STATUS_COLLECTED);
             rowUpdated = mContext.getContentResolver().update(uris[0],
-                    contentValues,
+                    updateValues,
                     null,
                     null
             );

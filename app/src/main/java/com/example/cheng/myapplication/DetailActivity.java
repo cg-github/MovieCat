@@ -1,6 +1,7 @@
 package com.example.cheng.myapplication;
 
 import android.annotation.SuppressLint;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Canvas;
@@ -35,6 +36,8 @@ import com.example.cheng.myapplication.data.MovieContract;
 import com.example.cheng.myapplication.tasks.FetchMovieDetailTask;
 import com.example.cheng.myapplication.tasks.FetchReviewsTask;
 import com.example.cheng.myapplication.tasks.FetchTrailersTask;
+import com.example.cheng.myapplication.tasks.GetMovieStatusTask;
+import com.example.cheng.myapplication.tasks.OnMovieStatusTaskListener;
 import com.example.cheng.myapplication.tasks.OnTaskListener;
 import com.example.cheng.myapplication.tasks.UpdateStatusTask;
 import com.example.cheng.myapplication.util.CommonUtil;
@@ -76,31 +79,6 @@ public class DetailActivity extends AppCompatActivity  implements LoaderManager.
         mMovieId = mIntent.getLongExtra(CommonUtil.KEY_MOVIE_ID,0);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                int status = mCursor.getInt(MovieContract.COL_STATUS);
-                if (status==1){
-                    Snackbar.make(view, "该电影已收藏！", Snackbar.LENGTH_LONG)
-                            .setAction("Action", null).show();
-                }else{
-                    Uri uri = MovieContract.MovieEntry.buildUriWithMovieId(mMovieId);
-                    new UpdateStatusTask(DetailActivity.this, new OnTaskListener() {
-                        @Override
-                        public void onSuccess() {
-                            Toast.makeText(DetailActivity.this,"收藏成功！",Toast.LENGTH_SHORT).show();
-                        }
-
-                        @Override
-                        public void onFailed() {
-                            Toast.makeText(DetailActivity.this,"收藏失败！",Toast.LENGTH_SHORT).show();
-                        }
-                    }).execute(uri);
-                }
-
-            }
-        });
 
         mLayoutManager = new LinearLayoutManager(this){
             @Override
@@ -123,20 +101,42 @@ public class DetailActivity extends AppCompatActivity  implements LoaderManager.
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_detail,menu);
+        final MenuItem menuItem = menu.getItem(1);
+        Uri uri = MovieContract.MovieEntry.buildUriWithMovieId(mMovieId);
+        new GetMovieStatusTask(getApplicationContext(), new OnMovieStatusTaskListener() {
+            @Override
+            public void onCollected() {
+                menuItem.setTitle(R.string.action_collected);
+            }
+
+            @Override
+            public void onNotCollected() {
+                menuItem.setTitle(R.string.action_collect);
+            }
+
+            @Override
+            public void onFailed() {
+                Toast.makeText(getApplicationContext(),"获取收藏状态失败！",Toast.LENGTH_SHORT).show();
+            }
+        }).execute(uri);
         return super.onCreateOptionsMenu(menu);
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onOptionsItemSelected( MenuItem item) {
         switch (item.getItemId()){
             case R.id.action_refresh:
                 fetchData();
+                break;
+            case R.id.action_collect:
+                updateMovieStatus(item);
                 break;
             default:
                 break;
         }
         return super.onOptionsItemSelected(item);
     }
+
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
@@ -226,5 +226,42 @@ public class DetailActivity extends AppCompatActivity  implements LoaderManager.
                 Toast.makeText(getApplicationContext(),"get movie runtime failed!",Toast.LENGTH_LONG).show();
             }
         }).execute();
+    }
+
+    private void updateMovieStatus(MenuItem item) {
+        final MenuItem itemCollect = item;
+        String menuTitle = (String) itemCollect.getTitle();
+        final int collectFlag;
+        Uri uri = MovieContract.MovieEntry.buildUriWithMovieId(mMovieId);
+        ContentValues updateValues = new ContentValues();
+        if (menuTitle.equals(getString(R.string.action_collect))){
+            updateValues.put(MovieContract.MovieEntry.COLUMN_STATUS,MovieContract.STATUS_COLLECTED);
+            collectFlag = 0;
+        }else {
+            updateValues.put(MovieContract.MovieEntry.COLUMN_STATUS,MovieContract.STATUS_NOT_COLLECTED);
+            collectFlag =1;
+        }
+
+        new UpdateStatusTask(DetailActivity.this,updateValues, new OnTaskListener() {
+            @Override
+            public void onSuccess() {
+                if (collectFlag ==0) {
+                    Toast.makeText(DetailActivity.this,"收藏成功！",Toast.LENGTH_SHORT).show();
+                    itemCollect.setTitle(R.string.action_collected);
+                }else {
+                    Toast.makeText(DetailActivity.this,"取消收藏成功！",Toast.LENGTH_SHORT).show();
+                    itemCollect.setTitle(R.string.action_collect);
+                }
+            }
+
+            @Override
+            public void onFailed() {
+                if (collectFlag == 0){
+                    Toast.makeText(DetailActivity.this,"收藏失败！",Toast.LENGTH_SHORT).show();
+                }else {
+                    Toast.makeText(DetailActivity.this,"取消收藏失败！",Toast.LENGTH_SHORT).show();
+                }
+            }
+        }).execute(uri);
     }
 }

@@ -28,6 +28,7 @@ import com.example.cheng.myapplication.interfaces.OnMovieStatusTaskListener;
 import com.example.cheng.myapplication.interfaces.OnTaskListener;
 import com.example.cheng.myapplication.tasks.UpdateStatusTask;
 import com.example.cheng.myapplication.util.CommonUtil;
+import com.example.cheng.myapplication.util.ToastUtil;
 import com.example.cheng.myapplication.views.RecyclerViewDivider;
 
 public class DetailActivity extends AppCompatActivity  implements LoaderManager.LoaderCallbacks<Cursor>{
@@ -57,8 +58,6 @@ public class DetailActivity extends AppCompatActivity  implements LoaderManager.
         mIntent = getIntent();
         mMovieId = mIntent.getLongExtra(CommonUtil.KEY_MOVIE_ID,0);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-
         mLayoutManager = new LinearLayoutManager(this){
             @Override
             protected int getExtraLayoutSpace(RecyclerView.State state) {
@@ -78,6 +77,12 @@ public class DetailActivity extends AppCompatActivity  implements LoaderManager.
 
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        fetchData();
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_detail,menu);
         final MenuItem menuItem = menu.getItem(1);
@@ -95,7 +100,7 @@ public class DetailActivity extends AppCompatActivity  implements LoaderManager.
 
             @Override
             public void onFailed() {
-                Toast.makeText(getApplicationContext(),"获取收藏状态失败！",Toast.LENGTH_SHORT).show();
+                ToastUtil.show(getApplicationContext(),"获取收藏状态失败！");
             }
         }).execute(uri);
         return super.onCreateOptionsMenu(menu);
@@ -142,7 +147,6 @@ public class DetailActivity extends AppCompatActivity  implements LoaderManager.
         int nTrailerNum=0;
         switch (loadId){
             case LOADER_MOVIE_DETAIL:
-                Toast.makeText(DetailActivity.this,"LOADER_MOVIE_DETAIL finished!",Toast.LENGTH_LONG).show();
                 mCursor = data;
                 if(mCursor.moveToFirst()){
                     do{
@@ -172,37 +176,34 @@ public class DetailActivity extends AppCompatActivity  implements LoaderManager.
         new FetchTrailersTask(this,mMovieId,new OnTaskListener(){
             @Override
             public void onSuccess() {
-                Toast.makeText(getApplicationContext(),"get trailers success!",Toast.LENGTH_LONG).show();
                 getSupportLoaderManager().restartLoader(LOADER_MOVIE_DETAIL,null,DetailActivity.this);
             }
 
             @Override
             public void onFailed() {
-                Toast.makeText(getApplicationContext(),"get trailers failed!",Toast.LENGTH_LONG).show();
+               ToastUtil.show(getApplicationContext(),"get trailers failed!");
             }
         }).execute();
         new FetchReviewsTask(this, mMovieId, new OnTaskListener() {
             @Override
             public void onSuccess() {
-                Toast.makeText(getApplicationContext(),"get reviews success!",Toast.LENGTH_LONG).show();
                 getSupportLoaderManager().restartLoader(LOADER_MOVIE_DETAIL,null,DetailActivity.this);
             }
 
             @Override
             public void onFailed() {
-                Toast.makeText(getApplicationContext(),"get reviews failed!",Toast.LENGTH_LONG).show();
+                ToastUtil.show(getApplicationContext(),"get reviews failed!");
             }
         }).execute();
         new FetchMovieDetailTask(this, mMovieId, new OnTaskListener() {
             @Override
             public void onSuccess() {
-                Toast.makeText(getApplicationContext(),"get movie runtime success!",Toast.LENGTH_LONG).show();
                 getSupportLoaderManager().restartLoader(LOADER_MOVIE_DETAIL,null,DetailActivity.this);
             }
 
             @Override
             public void onFailed() {
-                Toast.makeText(getApplicationContext(),"get movie runtime failed!",Toast.LENGTH_LONG).show();
+                ToastUtil.show(getApplicationContext(),"get movie runtime failed!");
             }
         }).execute();
     }
@@ -225,10 +226,10 @@ public class DetailActivity extends AppCompatActivity  implements LoaderManager.
             @Override
             public void onSuccess() {
                 if (collectFlag ==0) {
-                    Toast.makeText(DetailActivity.this,"收藏成功！",Toast.LENGTH_SHORT).show();
+                    ToastUtil.show(DetailActivity.this,"收藏成功！");
                     itemCollect.setTitle(R.string.action_collected);
                 }else {
-                    Toast.makeText(DetailActivity.this,"取消收藏成功！",Toast.LENGTH_SHORT).show();
+                    ToastUtil.show(DetailActivity.this,"取消收藏成功！");
                     itemCollect.setTitle(R.string.action_collect);
                 }
             }
@@ -236,9 +237,9 @@ public class DetailActivity extends AppCompatActivity  implements LoaderManager.
             @Override
             public void onFailed() {
                 if (collectFlag == 0){
-                    Toast.makeText(DetailActivity.this,"收藏失败！",Toast.LENGTH_SHORT).show();
+                    ToastUtil.show(DetailActivity.this,"收藏失败！");
                 }else {
-                    Toast.makeText(DetailActivity.this,"取消收藏失败！",Toast.LENGTH_SHORT).show();
+                    ToastUtil.show(DetailActivity.this,"取消收藏失败！");
                 }
             }
         }).execute(uri);

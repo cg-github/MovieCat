@@ -2,26 +2,17 @@ package com.example.cheng.myapplication.tasks;
 
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.SharedPreferences;
-import android.content.pm.FeatureInfo;
-import android.graphics.Movie;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.preference.PreferenceManager;
 import android.util.Log;
-import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.example.cheng.myapplication.R;
-import com.example.cheng.myapplication.adapters.MovieReviewsAdapter;
 import com.example.cheng.myapplication.data.MovieContract;
-import com.example.cheng.myapplication.util.CommonUtil;
+import com.example.cheng.myapplication.interfaces.OnTaskListener;
 import com.example.cheng.myapplication.util.JsonParser;
 import com.example.cheng.myapplication.util.UrlFactory;
 
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -29,9 +20,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Vector;
 
 /**
  * Created by cheng on 2017/1/11.

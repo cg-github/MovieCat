@@ -4,12 +4,9 @@ import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
-import android.graphics.Canvas;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -17,39 +14,21 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
-import android.view.View;
-import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.cheng.myapplication.adapters.DetailAdapter;
-import com.example.cheng.myapplication.adapters.MovieReviewsAdapter;
-import com.example.cheng.myapplication.adapters.ReviewsAdapter;
-import com.example.cheng.myapplication.adapters.TrailersAdapter;
 import com.example.cheng.myapplication.data.MovieContract;
 import com.example.cheng.myapplication.tasks.FetchMovieDetailTask;
 import com.example.cheng.myapplication.tasks.FetchReviewsTask;
 import com.example.cheng.myapplication.tasks.FetchTrailersTask;
 import com.example.cheng.myapplication.tasks.GetMovieStatusTask;
-import com.example.cheng.myapplication.tasks.OnMovieStatusTaskListener;
-import com.example.cheng.myapplication.tasks.OnTaskListener;
+import com.example.cheng.myapplication.interfaces.OnMovieStatusTaskListener;
+import com.example.cheng.myapplication.interfaces.OnTaskListener;
 import com.example.cheng.myapplication.tasks.UpdateStatusTask;
 import com.example.cheng.myapplication.util.CommonUtil;
 import com.example.cheng.myapplication.views.RecyclerViewDivider;
-import com.squareup.picasso.Callback;
-import com.squareup.picasso.Picasso;
-
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.ListIterator;
 
 public class DetailActivity extends AppCompatActivity  implements LoaderManager.LoaderCallbacks<Cursor>{
 

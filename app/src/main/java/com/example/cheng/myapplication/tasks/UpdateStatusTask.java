@@ -5,7 +5,7 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.AsyncTask;
 
-import com.example.cheng.myapplication.data.MovieContract;
+import com.example.cheng.myapplication.interfaces.OnTaskListener;
 
 /**
  * Created by cheng on 2017/1/6.

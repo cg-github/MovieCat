@@ -6,6 +6,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 
 import com.example.cheng.myapplication.data.MovieContract;
+import com.example.cheng.myapplication.interfaces.OnMovieStatusTaskListener;
 
 /**
  * Created by cheng on 2017/2/23.

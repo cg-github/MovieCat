@@ -27,7 +27,7 @@ import android.widget.Toast;
 import com.example.cheng.myapplication.adapters.MovieListAdapter;
 import com.example.cheng.myapplication.data.MovieContract;
 import com.example.cheng.myapplication.tasks.FetchMovieTask;
-import com.example.cheng.myapplication.tasks.OnTaskListener;
+import com.example.cheng.myapplication.interfaces.OnTaskListener;
 import com.example.cheng.myapplication.util.CommonUtil;
 import java.util.ArrayList;
 import java.util.HashMap;
